@@ -62,7 +62,7 @@ router.post(
 
       const message: IImageResponse = {
         image: response.data.images[0],
-        message: 'Image rotated successfully!',
+        message: 'Image processed successfully!',
       };
 
       res.status(200).json(message);
