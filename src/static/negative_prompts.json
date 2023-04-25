@@ -1,0 +1,32 @@
+{
+  "negative_prompts": [
+    "violence",
+    "blood",
+    "weapons",
+    "guns",
+    "war",
+    "zombies",
+    "monsters",
+    "horror",
+    "death",
+    "injury",
+    "scars",
+    "self-harm",
+    "suicide",
+    "drugs",
+    "alcohol",
+    "smoking",
+    "vaping",
+    "explicit language",
+    "sex",
+    "nudity",
+    "sexual content",
+    "pornography",
+    "discrimination",
+    "racism",
+    "sexism",
+    "bullying",
+    "torture",
+    "cruelty to animals"
+  ]
+}
