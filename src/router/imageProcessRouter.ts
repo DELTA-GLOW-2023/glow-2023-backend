@@ -8,8 +8,8 @@ import sharp from 'sharp';
 import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
-import { NegativePrompts } from '../config/negativePrompts';
 import { IImageResponse } from '../interface/iImageResponse';
+import { NegativePrompts } from '../config/negativePrompts';
 
 const router = Router();
 
@@ -50,12 +50,9 @@ router.post(
         prompt: prompt,
         negative_prompt: NegativePrompts.negative_prompts.join(' '),
         steps: 20,
-        cfg_scale: 5,
-        sampler: 'Euler',
-        sampler_name: 'Euler',
+        cfg_scale: 8,
         width: 512,
         height: 512,
-        denoising_strength: 0.4,
       };
 
       const response = await axios.post(`${apiUrl}/sdapi/v1/img2img`, json);

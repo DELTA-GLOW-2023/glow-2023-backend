@@ -1,13 +1,10 @@
 import express, { json } from 'express';
 import { ImageProcessRouter } from './router/imageProcessRouter';
-import { config } from 'dotenv';
 import cors from 'cors';
 import { ViewImageRouter } from './router/viewImageRouter';
-
-config();
+import { port } from './config/config';
 
 const app = express();
-const port = process.env.PORT || '8000';
 
 app.use(cors());
 app.use(json());
