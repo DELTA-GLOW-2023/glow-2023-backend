@@ -1,5 +1,6 @@
 {
   "negative_prompts": [
+    "naked",
     "violence",
     "blood",
     "weapons",
@@ -25,8 +26,12 @@
     "discrimination",
     "racism",
     "sexism",
-    "bullying",
     "torture",
-    "cruelty to animals"
+    "cruelty to animals",
+    "disfigured",
+    "ugly",
+    "bad",
+    "immature",
+    "children"
   ]
 }

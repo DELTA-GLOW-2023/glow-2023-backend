@@ -40,30 +40,37 @@ router.post(
       const { image, prompt } = req.body;
 
       const json = {
-        init_images: [image],
         prompt: prompt,
         negative_prompt: NegativePrompts.negative_prompts.join(', '),
         sampler: 'Euler',
         sampler_name: 'Euler',
         steps: 20,
-        cfg_scale: 20,
-        width: 512 * 1.5,
+        cfg_scale: 7,
+        width: 512,
         height: 512 * 1.5,
         denoising_strength: 0.5,
         alwayson_scripts: {
           controlnet: {
             args: [
               {
-                module: 'depth',
-                model: 'diff_control_sd15_depth_fp16 [978ef0a1]',
+                input_image: image,
+                module: 'lineart_realistic',
+                model: 'control_sd15_scribble [fef5e48e]',
+                weight: 2,
               },
+              // {
+              //   input_image: image,
+              //   module: 'openpose_full',
+              //   model: 'control_sd15_scribble [fef5e48e]',
+              //   weight: 1,
+              // },
             ],
           },
         },
       };
 
       console.log('Sending request towards Stable Diffusion API');
-      const response = await axios.post(`${apiUrl}/sdapi/v1/img2img`, json);
+      const response = await axios.post(`${apiUrl}/sdapi/v1/txt2img`, json);
 
       const message: IImageResponse = {
         image: response.data.images[0],
