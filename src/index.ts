@@ -7,8 +7,13 @@ import { port } from './config/config';
 const app = express();
 
 app.use(cors());
-app.use(json());
-app.use('/image-process', ImageProcessRouter);
+app.use(
+  json({
+    limit: '50mb',
+  })
+);
+
+app.use('/process-image', ImageProcessRouter);
 app.use('/view-image', ViewImageRouter);
 
 app.listen(port, () => {

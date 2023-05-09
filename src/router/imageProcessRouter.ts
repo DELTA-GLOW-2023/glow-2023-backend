@@ -4,7 +4,6 @@
  @module ImageProcessRouter
  */
 import { Request, Response, Router } from 'express';
-import sharp from 'sharp';
 import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
@@ -25,7 +24,7 @@ const router = Router();
 router.post(
   '/',
   [
-    check('imageBase64')
+    check('image')
       .isString()
       .notEmpty()
       .withMessage('Image in base64 format is required.'),
@@ -38,23 +37,32 @@ router.post(
     }
 
     try {
-      const { imageBase64, prompt } = req.body;
-      const imageBuffer = Buffer.from(imageBase64, 'base64');
-
-      const rotatedImage = await sharp(imageBuffer).rotate(90).toBuffer();
-
-      const rotatedImageBase64 = rotatedImage.toString('base64');
+      const { image, prompt } = req.body;
 
       const json = {
-        init_images: [rotatedImageBase64],
+        init_images: [image],
         prompt: prompt,
-        negative_prompt: NegativePrompts.negative_prompts.join(' '),
+        negative_prompt: NegativePrompts.negative_prompts.join(', '),
+        sampler: 'Euler',
+        sampler_name: 'Euler',
         steps: 20,
-        cfg_scale: 8,
-        width: 512,
-        height: 512,
+        cfg_scale: 20,
+        width: 512 * 1.5,
+        height: 512 * 1.5,
+        denoising_strength: 0.5,
+        alwayson_scripts: {
+          controlnet: {
+            args: [
+              {
+                module: 'depth',
+                model: 'diff_control_sd15_depth_fp16 [978ef0a1]',
+              },
+            ],
+          },
+        },
       };
 
+      console.log('Sending request towards Stable Diffusion API');
       const response = await axios.post(`${apiUrl}/sdapi/v1/img2img`, json);
 
       const message: IImageResponse = {
