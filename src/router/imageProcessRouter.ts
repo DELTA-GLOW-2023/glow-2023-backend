@@ -41,7 +41,7 @@ router.post(
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
       sampler: 'Euler',
       sampler_name: 'Euler',
-      steps: 20,
+      steps: 50,
       cfg_scale: 4.5,
       width: 512,
       height: 512 * 1.5,
@@ -51,8 +51,8 @@ router.post(
             {
               input_image: image,
               module: 'openpose_full',
-              model: 'control_sd15_scribble [fef5e48e]',
-              weight: 1.4,
+              model: 'control_sd15_openpose [fef5e48e]',
+              weight: 1.2,
             },
             {
               input_image: image,
@@ -73,6 +73,8 @@ router.post(
         image: response.data.images[0],
         message: 'Image processed successfully!',
       };
+
+      console.log(message);
 
       res.status(200).json(message);
     } catch (error) {
