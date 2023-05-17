@@ -2,7 +2,9 @@ import express, { json } from 'express';
 import { ImageProcessRouter } from './router/imageProcessRouter';
 import cors from 'cors';
 import { ViewImageRouter } from './router/viewImageRouter';
-import { port } from './config/config';
+import { dbUrl, port } from './config/config';
+import mongoose from 'mongoose';
+import { UploadImageRouter } from './router/uploadImageRouter';
 
 const app = express();
 
@@ -15,7 +17,18 @@ app.use(
 
 app.use('/process-image', ImageProcessRouter);
 app.use('/view-image', ViewImageRouter);
+app.use('/upload-image', UploadImageRouter);
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+const main = async () => {
+  await mongoose.connect(dbUrl);
+  console.log('Connected to database');
+
+  await app.listen(port);
+};
+
+main()
+  .then(() => console.log(`Server is running on port ${port}`))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
