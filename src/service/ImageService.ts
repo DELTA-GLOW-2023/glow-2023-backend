@@ -15,7 +15,7 @@ const minioClient = new Client({
   secretKey: minioAccessSecret,
 });
 
-export const uploadImageToBucket = async (image: string): Promise<string> => {
+export const uploadImageToBucket = async (image: string): Promise<IImage> => {
   const imageBuffer = Buffer.from(image, 'base64');
 
   const imageName = `${Date.now()}.jpg`;
@@ -34,7 +34,7 @@ export const uploadImageToBucket = async (image: string): Promise<string> => {
   const imageModel = new ImageModel({ image: imageUrl });
   await imageModel.save();
 
-  return imageUrl;
+  return imageModel;
 };
 
 export const getLatestDisplayImage = async (): Promise<IImage> => {

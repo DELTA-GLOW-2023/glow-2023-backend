@@ -9,6 +9,7 @@ import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
 import { NegativePrompts } from '../config/negativePrompts';
+import { uploadImageToBucket } from '../service/ImageService';
 
 const router = Router();
 
@@ -70,12 +71,12 @@ router.post(
       console.log('Sending request towards Stable Diffusion API');
       const response = await axios.post(`${apiUrl}/sdapi/v1/txt2img`, json);
 
+      const result = await uploadImageToBucket(response.data.images[0]);
+
       const message: IImageResponse = {
-        image: response.data.images[0],
+        image: result.image,
         message: 'Image processed successfully!',
       };
-
-      console.log(message);
 
       res.status(200).json(message);
     } catch (error) {
