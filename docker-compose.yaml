@@ -26,10 +26,9 @@ services:
     container_name: glow_minio
     image: minio/minio
     command: server --console-address ":9001" /data
-
     ports:
-      - 4001:9000
-      - 4002:9001
+      - "4001:9000"
+      - "4002:9001"
     environment:
       MINIO_ROOT_USER: FHICTGlowDelta
       MINIO_ROOT_PASSWORD: GlowDeltaFHICT
