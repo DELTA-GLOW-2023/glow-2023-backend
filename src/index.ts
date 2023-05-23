@@ -4,7 +4,6 @@ import cors from 'cors';
 import { ViewImageRouter } from './router/viewImageRouter';
 import { dbUrl, port } from './config/config';
 import mongoose from 'mongoose';
-import { UploadImageRouter } from './router/uploadImageRouter';
 
 const app = express();
 
@@ -17,7 +16,6 @@ app.use(
 
 app.use('/process-image', ImageProcessRouter);
 app.use('/view-image', ViewImageRouter);
-app.use('/upload-image', UploadImageRouter);
 
 const main = async () => {
   await mongoose.connect(dbUrl);
