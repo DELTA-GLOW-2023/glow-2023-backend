@@ -41,7 +41,8 @@ router.post(
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
       sampler: 'Euler',
       sampler_name: 'Euler',
-      steps: 50,
+      //@TODO set back to 50 when going live
+      steps: 5,
       cfg_scale: 4.5,
       width: 512,
       height: 512 * 1.5,
