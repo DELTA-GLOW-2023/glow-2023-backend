@@ -1,11 +1,32 @@
-import express from 'express';
-import { rootHandler } from './handlers';
+import express, { json } from 'express';
+import { ImageProcessRouter } from './router/imageProcessRouter';
+import cors from 'cors';
+import { ViewImageRouter } from './router/viewImageRouter';
+import { dbUrl, port } from './config/config';
+import mongoose from 'mongoose';
 
 const app = express();
-const port = process.env.PORT || '8000';
 
-app.get('/', rootHandler);
+app.use(cors());
+app.use(
+  json({
+    limit: '50mb',
+  })
+);
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+app.use('/process-image', ImageProcessRouter);
+app.use('/view-image', ViewImageRouter);
+
+const main = async () => {
+  await mongoose.connect(dbUrl);
+  console.log('Connected to database');
+
+  await app.listen(port);
+};
+
+main()
+  .then(() => console.log(`Server is running on port ${port}`))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

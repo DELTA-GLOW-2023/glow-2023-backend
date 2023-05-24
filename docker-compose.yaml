@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: glow_backend
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mongodb://glow:admin@db:27017/glow?authSource=admin
+    ports:
+      - 4000:4000
+  db:
+    container_name: glow_mongo_db
+    image: mongo
+    ports:
+      - 4004:27017
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: glow
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - glow_data:/data:/data/db
+      - glow_data:/data/configdb:/data/configdb
+  minio:
+    container_name: glow_minio
+    image: minio/minio
+    command: server --console-address ":9001" /data
+    ports:
+      - "4001:9000"
+      - "4002:9001"
+    environment:
+      MINIO_ROOT_USER: FHICTGlowDelta
+      MINIO_ROOT_PASSWORD: GlowDeltaFHICT
+    volumes:
+      - glow_minio_data:/data
+volumes:
+  glow_data:
+  glow_minio_data:
+
+
