@@ -36,7 +36,8 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { image, prompt } = req.body;
+    const { image, prompt, promptDescription, secondPrompt, secondPromptDescription } = req.body;
+
     const json = {
       prompt: prompt,
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
@@ -67,14 +68,45 @@ router.post(
       },
     };
 
+    const json2 = {
+      prompt: secondPrompt,
+      negative_prompt: NegativePrompts.negative_prompts.join(', '),
+      sampler: 'Euler',
+      sampler_name: 'Euler',
+      //@TODO set back to 50 when going live
+      steps: 5,
+      cfg_scale: 4.5,
+      width: 512,
+      height: 512 * 1.5,
+      alwayson_scripts: {
+        controlnet: {
+          args: [
+            {
+              input_image: image,
+              module: 'openpose_full',
+              model: 'control_sd15_openpose [fef5e48e]',
+              weight: 1.2,
+            },
+            {
+              input_image: image,
+              module: 'lineart_realistic',
+              model: 'control_sd15_scribble [fef5e48e]',
+              weight: 0.8,
+            },
+          ],
+        },
+      },
+    };
+
     try {
       console.log('Sending request towards Stable Diffusion API');
-      const response = await axios.post(`${apiUrl}/sdapi/v1/txt2img`, json);
+      const [response, response2] = await axios.all([axios.post(`${apiUrl}/sdapi/v1/txt2img`, json), axios.post(`${apiUrl}/sdapi/v1/txt2img`, json2)]);
 
-      const result = await uploadImageToBucket(response.data.images[0]);
+      const result = await uploadImageToBucket(response.data.images[0], promptDescription, response2.data.images[0], secondPromptDescription);
 
       const message: IImageResponse = {
         image: result.image,
+        secondImage: result.secondImage,
         message: 'Image processed successfully!',
       };
 
