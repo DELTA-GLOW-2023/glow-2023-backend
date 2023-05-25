@@ -102,7 +102,7 @@ router.post(
       console.log('Sending request towards Stable Diffusion API');
       const [response, response2] = await axios.all([axios.post(`${apiUrl}/sdapi/v1/txt2img`, json), axios.post(`${apiUrl}/sdapi/v1/txt2img`, json2)]);
 
-      const result = await uploadImageToBucket(response.data.images[0], promptDescription, response2.data.images[0], secondPromptDescription);
+      const result = await uploadImageToBucket(response.data.images[0], response2.data.images[0], promptDescription, secondPromptDescription);
 
       const message: IImageResponse = {
         image: result.image,
