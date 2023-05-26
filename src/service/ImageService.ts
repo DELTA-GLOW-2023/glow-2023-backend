@@ -17,11 +17,22 @@ const minioClient = new Client({
   secretKey: minioAccessSecret,
 });
 
-export const uploadImageToBucket = async (image: string): Promise<IImage> => {
+const ImageToBucket = async (
+  image: string,
+  bucketName: string
+): Promise<string> => {
   const imageBuffer = Buffer.from(image, 'base64');
-
   const imageName = `${Date.now()}.jpg`;
+  await minioClient.putObject(bucketName, imageName, imageBuffer);
+  return `http://${minioPublicEndpoint}:${minioPublicPort}/${bucketName}/${imageName}`;
+};
 
+export const uploadImageToBucket = async (
+  image: string,
+  secondImage: string,
+  promptDescription: string,
+  secondPromptDescription: string
+): Promise<IImage> => {
   const bucketName = 'images'; // Specify the bucket name
 
   const bucketExists = await minioClient.bucketExists(bucketName);
@@ -29,11 +40,17 @@ export const uploadImageToBucket = async (image: string): Promise<IImage> => {
     await minioClient.makeBucket(bucketName);
   }
 
-  await minioClient.putObject(bucketName, imageName, imageBuffer);
+  const [imageUrl, secondImageUrl] = await Promise.all([
+    ImageToBucket(image, bucketName),
+    ImageToBucket(secondImage, bucketName),
+  ]);
 
-  const imageUrl = `http://${minioPublicEndpoint}:${minioPublicPort}/${bucketName}/${imageName}`;
-
-  const imageModel = new ImageModel({ image: imageUrl });
+  const imageModel = new ImageModel({
+    image: imageUrl,
+    secondImage: secondImageUrl,
+    imagePrompt: promptDescription,
+    secondImagePrompt: secondPromptDescription,
+  });
   await imageModel.save();
 
   return imageModel;
