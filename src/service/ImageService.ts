@@ -4,6 +4,8 @@ import {
   minioAccessSecret,
   minioEndpoint,
   minioPort,
+  minioPublicEndpoint,
+  minioPublicPort
 } from '../config/config';
 import { IImage, ImageModel } from '../model/imageModel';
 
@@ -22,7 +24,7 @@ const ImageToBucket = async (
   const imageBuffer = Buffer.from(image, 'base64');
   const imageName = `${Date.now()}.jpg`;
   await minioClient.putObject(bucketName, imageName, imageBuffer);
-  return `http://${minioEndpoint}:${minioPort}/${bucketName}/${imageName}`;
+  return `http://${minioPublicEndpoint}:${minioPublicPort}/${bucketName}/${imageName}`;
 };
 
 export const uploadImageToBucket = async (
