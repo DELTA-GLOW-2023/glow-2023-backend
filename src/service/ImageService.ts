@@ -5,7 +5,7 @@ import {
   minioEndpoint,
   minioPort,
   minioPublicEndpoint,
-  minioPublicPort
+  minioPublicPort,
 } from '../config/config';
 import { IImage, ImageModel } from '../model/imageModel';
 
@@ -63,8 +63,8 @@ export const getLatestDisplayImage = async (): Promise<IImage> => {
 
   if (!imageToDisplay) {
     const images = await ImageModel.find({}).sort({ createdAt: -1 });
-    const randomIndex = Math.floor(Math.random() * images.length);
-    return images[randomIndex];
+    // const randomIndex = Math.floor(Math.random() * images.length);
+    return images[0];
   }
   imageToDisplay.displayed = true;
   await imageToDisplay.save();
