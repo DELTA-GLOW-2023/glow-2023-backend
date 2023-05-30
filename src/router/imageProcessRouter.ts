@@ -39,13 +39,14 @@ router.post(
     const { image, prompt, promptDescription, secondPrompt, secondPromptDescription } = req.body;
 
     const json = {
+      init_images: [image],
       prompt: prompt,
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'Euler',
-      sampler_name: 'Euler',
+      sampler: 'Euler a',
+      sampler_name: 'Euler a',
       //@TODO set back to 50 when going live
-      steps: 5,
-      cfg_scale: 4.5,
+      steps: 50,
+      cfg_scale: 4,
       width: 512,
       height: 512 * 1.5,
       alwayson_scripts: {
@@ -55,13 +56,15 @@ router.post(
               input_image: image,
               module: 'openpose_full',
               model: 'control_sd15_openpose [fef5e48e]',
-              weight: 1.2,
+              weight: 0.8,
+              control_mode: 1
             },
             {
               input_image: image,
               module: 'lineart_realistic',
-              model: 'control_sd15_scribble [fef5e48e]',
-              weight: 0.8,
+              model: 'control_v11p_sd15_lineart [43d4be0d]',
+              weight: 1,
+              control_mode: 1
             },
           ],
         },
@@ -69,13 +72,14 @@ router.post(
     };
 
     const json2 = {
+      init_images: [image],
       prompt: secondPrompt,
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'Euler',
-      sampler_name: 'Euler',
+      sampler: 'Euler a',
+      sampler_name: 'Euler a',
       //@TODO set back to 50 when going live
-      steps: 5,
-      cfg_scale: 4.5,
+      steps: 50,
+      cfg_scale: 4,
       width: 512,
       height: 512 * 1.5,
       alwayson_scripts: {
@@ -85,13 +89,15 @@ router.post(
               input_image: image,
               module: 'openpose_full',
               model: 'control_sd15_openpose [fef5e48e]',
-              weight: 1.2,
+              weight: 0.8,
+              control_mode: 1
             },
             {
               input_image: image,
               module: 'lineart_realistic',
-              model: 'control_sd15_scribble [fef5e48e]',
-              weight: 0.8,
+              model: 'control_v11p_sd15_lineart [43d4be0d]',
+              weight: 1,
+              control_mode: 1
             },
           ],
         },
