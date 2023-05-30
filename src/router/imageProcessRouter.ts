@@ -46,7 +46,7 @@ router.post(
       sampler_name: 'Euler a',
       //@TODO set back to 50 when going live
       steps: 50,
-      cfg_scale: 6,
+      cfg_scale: 4,
       width: 512,
       height: 512 * 1.5,
       alwayson_scripts: {
@@ -63,8 +63,8 @@ router.post(
               input_image: image,
               module: 'lineart_realistic',
               model: 'control_v11p_sd15_lineart [43d4be0d]',
-              weight: 2,
-              control_mode: 2
+              weight: 1,
+              control_mode: 1
             },
           ],
         },
@@ -79,7 +79,7 @@ router.post(
       sampler_name: 'Euler a',
       //@TODO set back to 50 when going live
       steps: 50,
-      cfg_scale: 6,
+      cfg_scale: 4,
       width: 512,
       height: 512 * 1.5,
       alwayson_scripts: {
@@ -96,8 +96,8 @@ router.post(
               input_image: image,
               module: 'lineart_realistic',
               model: 'control_v11p_sd15_lineart [43d4be0d]',
-              weight: 2,
-              control_mode: 2
+              weight: 1,
+              control_mode: 1
             },
           ],
         },
