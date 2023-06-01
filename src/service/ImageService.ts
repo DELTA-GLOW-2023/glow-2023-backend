@@ -29,9 +29,7 @@ const ImageToBucket = async (
 
 export const uploadImageToBucket = async (
   image: string,
-  secondImage: string,
-  promptDescription: string,
-  secondPromptDescription: string
+  promptDescription: string
 ): Promise<IImage> => {
   const bucketName = 'images'; // Specify the bucket name
 
@@ -40,16 +38,11 @@ export const uploadImageToBucket = async (
     await minioClient.makeBucket(bucketName);
   }
 
-  const [imageUrl, secondImageUrl] = await Promise.all([
-    ImageToBucket(image, bucketName),
-    ImageToBucket(secondImage, bucketName),
-  ]);
+  const [imageUrl] = await Promise.all([ImageToBucket(image, bucketName)]);
 
   const imageModel = new ImageModel({
     image: imageUrl,
-    secondImage: secondImageUrl,
     imagePrompt: promptDescription,
-    secondImagePrompt: secondPromptDescription,
   });
   await imageModel.save();
 
@@ -63,7 +56,6 @@ export const getLatestDisplayImage = async (): Promise<IImage> => {
 
   if (!imageToDisplay) {
     const images = await ImageModel.find({}).sort({ createdAt: -1 });
-    // const randomIndex = Math.floor(Math.random() * images.length);
     return images[0];
   }
   imageToDisplay.displayed = true;

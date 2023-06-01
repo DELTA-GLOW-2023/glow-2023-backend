@@ -36,7 +36,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { image, prompt, promptDescription, secondPrompt, secondPromptDescription } = req.body;
+    const { image, prompt, promptDescription } = req.body;
 
     const json = {
       init_images: [image],
@@ -44,7 +44,6 @@ router.post(
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
       sampler: 'Euler a',
       sampler_name: 'Euler a',
-      //@TODO set back to 50 when going live
       steps: 50,
       cfg_scale: 4,
       width: 512,
@@ -57,47 +56,14 @@ router.post(
               module: 'openpose_full',
               model: 'control_sd15_openpose [fef5e48e]',
               weight: 0.8,
-              control_mode: 1
+              control_mode: 1,
             },
             {
               input_image: image,
               module: 'lineart_realistic',
               model: 'control_v11p_sd15_lineart [43d4be0d]',
               weight: 1,
-              control_mode: 1
-            },
-          ],
-        },
-      },
-    };
-
-    const json2 = {
-      init_images: [image],
-      prompt: secondPrompt,
-      negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'Euler a',
-      sampler_name: 'Euler a',
-      //@TODO set back to 50 when going live
-      steps: 50,
-      cfg_scale: 4,
-      width: 512,
-      height: 512 * 1.5,
-      alwayson_scripts: {
-        controlnet: {
-          args: [
-            {
-              input_image: image,
-              module: 'openpose_full',
-              model: 'control_sd15_openpose [fef5e48e]',
-              weight: 0.8,
-              control_mode: 1
-            },
-            {
-              input_image: image,
-              module: 'lineart_realistic',
-              model: 'control_v11p_sd15_lineart [43d4be0d]',
-              weight: 1,
-              control_mode: 1
+              control_mode: 1,
             },
           ],
         },
@@ -106,9 +72,12 @@ router.post(
 
     try {
       console.log('Sending request towards Stable Diffusion API');
-      const [response, response2] = await axios.all([axios.post(`${apiUrl}/sdapi/v1/txt2img`, json), axios.post(`${apiUrl}/sdapi/v1/txt2img`, json2)]);
+      const response = await axios.post(`${apiUrl}/sdapi/v1/txt2img`, json);
 
-      const result = await uploadImageToBucket(response.data.images[0], response2.data.images[0], promptDescription, secondPromptDescription);
+      const result = await uploadImageToBucket(
+        response.data.images[0],
+        promptDescription
+      );
 
       const message: IImageResponse = {
         image: result.image,
