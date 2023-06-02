@@ -7,7 +7,7 @@ import {
   minioPublicEndpoint,
   minioPublicPort,
 } from '../config/config';
-import { IImage, ImageModel } from '../model/imageModel';
+import { IPrompt, PromptModel } from '../model/promptModel';
 import axios from 'axios';
 import { NegativePrompts } from '../config/negativePrompts';
 
@@ -31,8 +31,9 @@ const ImageToBucket = async (
 
 export const uploadImageToBucket = async (
   image: string,
-  promptDescription: string
-): Promise<IImage> => {
+  promptDescription: string,
+  imageId?: string
+): Promise<IPrompt> => {
   const bucketName = 'images'; // Specify the bucket name
 
   const bucketExists = await minioClient.bucketExists(bucketName);
@@ -40,34 +41,34 @@ export const uploadImageToBucket = async (
     await minioClient.makeBucket(bucketName);
   }
 
-  const [imageUrl] = await Promise.all([ImageToBucket(image, bucketName)]);
+  const imageUrl = await ImageToBucket(image, bucketName);
 
-  const imageModel = new ImageModel({
+  const imageModelData = {
     image: imageUrl,
     imagePrompt: promptDescription,
-  });
-  await imageModel.save();
+  };
 
-  return imageModel;
+  if (imageId) {
+    const imageModel = await PromptModel.findById(imageId);
+    imageModel.image.push(imageUrl);
+    await imageModel.save();
+    return imageModel;
+  } else {
+    const imageModel = new PromptModel(imageModelData);
+    await imageModel.save();
+
+    return imageModel;
+  }
 };
 
-export const getLatestDisplayImage = async (): Promise<IImage> => {
-  const imageToDisplay = await ImageModel.findOne({ displayed: false }).sort({
+export const getLatestDisplayImage = async (): Promise<IPrompt> => {
+  return PromptModel.findOne({}).sort({
     createdAt: -1,
   });
-
-  if (!imageToDisplay) {
-    const images = await ImageModel.find({}).sort({ createdAt: -1 });
-    return images[0];
-  }
-  imageToDisplay.displayed = true;
-  await imageToDisplay.save();
-
-  return imageToDisplay;
 };
 
-export const viewImages = async (): Promise<IImage[]> => {
-  return await ImageModel.find({}).sort({ createdAt: -1 });
+export const viewImages = async (): Promise<IPrompt[]> => {
+  return PromptModel.find({}).sort({ createdAt: -1 });
 };
 
 export async function imageUrlToBase64(url: string) {
@@ -81,12 +82,14 @@ export async function imageUrlToBase64(url: string) {
 }
 
 export async function getDenoise() {
-  const imageCount = await ImageModel.countDocuments({});
+  const imageCount = await PromptModel.countDocuments({});
   return imageCount % 30 === 0 ? '0.80' : '0.25';
 }
 
 export async function getFinalPrompt(prompt: string) {
-  const lastImages = await ImageModel.find({}).sort({ createdAt: -1 }).limit(5);
+  const lastImages = await PromptModel.find({})
+    .sort({ createdAt: -1 })
+    .limit(5);
   let finalPrompt = `(${prompt}:1.5), `;
 
   lastImages.map((image, i) => {
@@ -105,7 +108,7 @@ export async function getJson(prompt: string) {
   let endpoint;
   if (image) {
     const finalPrompt = await getFinalPrompt(prompt);
-    const finalImage = await imageUrlToBase64(image.image);
+    const finalImage = await imageUrlToBase64(image.image[-1]);
     json = {
       init_images: [finalImage],
       prompt: finalPrompt,

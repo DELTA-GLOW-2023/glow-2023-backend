@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getLatestDisplayImage, viewImages } from '../service/ImageService';
+import { getLatestDisplayImage, viewImages } from '../service/PromptService';
 
 const viewImageRouter = Router();
 

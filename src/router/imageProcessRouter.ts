@@ -8,15 +8,8 @@ import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
-import { NegativePrompts } from '../config/negativePrompts';
-import {
-  getDenoise,
-  getFinalPrompt,
-  getJson,
-  getLatestDisplayImage,
-  imageUrlToBase64,
-  uploadImageToBucket,
-} from '../service/ImageService';
+import { getJson, uploadImageToBucket } from '../service/PromptService';
+import { IPrompt } from '../model/promptModel';
 
 const router = Router();
 
@@ -41,25 +34,28 @@ router.post(
 
     const { json, endpoint } = await getJson(prompt);
 
+    let imageId: string;
+    let imageResult: IPrompt;
     try {
       console.log('Sending request towards Stable Diffusion API');
-      let message: IImageResponse;
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 4; i++) {
         const response = await axios.post(
           `${apiUrl}/sdapi/v1/${endpoint}2img`,
           json
         );
 
-        const result = await uploadImageToBucket(
+        imageResult = await uploadImageToBucket(
           response.data.images[0],
-          prompt
+          prompt,
+          imageId
         );
 
-        message = {
-          image: result.image,
-          message: 'Image processed successfully!',
-        };
+        imageId = imageResult._id;
       }
+      const message = {
+        promptResult: imageResult,
+        message: 'Image processed successfully!',
+      };
 
       res.status(200).json(message);
     } catch (error) {
