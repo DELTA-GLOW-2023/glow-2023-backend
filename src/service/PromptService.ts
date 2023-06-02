@@ -61,11 +61,14 @@ export const uploadImageToBucket = async (
   }
 };
 
-export const getLatestDisplayImage = async (): Promise<string> => {
+export const getLatestDisplayImage = async (): Promise<string | undefined> => {
   const prompt = await PromptModel.findOne({}).sort({
     createdAt: -1,
   });
 
+  if (!prompt) {
+    return undefined;
+  }
   return prompt.image[prompt.image.length - 1];
 };
 
