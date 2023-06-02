@@ -32,13 +32,15 @@ router.post(
 
     const { prompt } = req.body;
 
-    const { json, endpoint } = await getJson(prompt);
-
     let imageId: string;
     let imageResult: IPrompt;
     try {
-      console.log('Sending request towards Stable Diffusion API');
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 30; i++) {
+        const { json, endpoint } = await getJson(prompt, i);
+
+        console.log(`Sending request towards Stable Diffusion API ${i}`);
+        console.log(json.prompt);
+        console.log(json.denoising_strength);
         const response = await axios.post(
           `${apiUrl}/sdapi/v1/${endpoint}2img`,
           json
@@ -52,7 +54,7 @@ router.post(
 
         imageId = imageResult._id;
       }
-      const message = {
+      const message: IImageResponse = {
         promptResult: imageResult,
         message: 'Image processed successfully!',
       };

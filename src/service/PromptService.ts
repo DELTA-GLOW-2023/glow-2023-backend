@@ -61,10 +61,12 @@ export const uploadImageToBucket = async (
   }
 };
 
-export const getLatestDisplayImage = async (): Promise<IPrompt> => {
-  return PromptModel.findOne({}).sort({
+export const getLatestDisplayImage = async (): Promise<string> => {
+  const prompt = await PromptModel.findOne({}).sort({
     createdAt: -1,
   });
+
+  return prompt.image[prompt.image.length - 1];
 };
 
 export const viewImages = async (): Promise<IPrompt[]> => {
@@ -86,29 +88,26 @@ export async function getDenoise() {
   return imageCount % 30 === 0 ? '0.80' : '0.25';
 }
 
-export async function getFinalPrompt(prompt: string) {
+export async function getFinalPrompt() {
   const lastImages = await PromptModel.find({})
     .sort({ createdAt: -1 })
-    .limit(5);
-  let finalPrompt = `(${prompt}:1.5), `;
+    .limit(6);
 
-  lastImages.map((image, i) => {
-    finalPrompt += `(${image.imagePrompt}:${1.3 - i * 0.2}), `;
+  const prompt = lastImages.map((image, i) => {
+    return `(${image.imagePrompt}:${1.5 - i * 0.2})`;
   });
 
-  console.log(finalPrompt);
-
-  return finalPrompt;
+  return prompt.toString();
 }
 
-export async function getJson(prompt: string) {
+export async function getJson(prompt: string, iterator: number) {
   const image = await getLatestDisplayImage();
-  const denoise = '0.4';
+  const denoise = ((iterator + 1) * 0.025).toFixed(3);
   let json;
   let endpoint;
   if (image) {
-    const finalPrompt = await getFinalPrompt(prompt);
-    const finalImage = await imageUrlToBase64(image.image[-1]);
+    const finalPrompt = await getFinalPrompt();
+    const finalImage = await imageUrlToBase64(image);
     json = {
       init_images: [finalImage],
       prompt: finalPrompt,
