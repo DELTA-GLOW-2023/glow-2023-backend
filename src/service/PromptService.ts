@@ -24,7 +24,7 @@ const ImageToBucket = async (
   bucketName: string
 ): Promise<string> => {
   const imageBuffer = Buffer.from(image, 'base64');
-  const imageName = `${Date.now()}.jpg`;
+  const imageName = `${Date.now()}.png`;
   await minioClient.putObject(bucketName, imageName, imageBuffer);
   return `http://${minioPublicEndpoint}:${minioPublicPort}/${bucketName}/${imageName}`;
 };
@@ -88,7 +88,7 @@ export async function imageUrlToBase64(url: string) {
 
 export async function getDenoise() {
   const imageCount = await PromptModel.countDocuments({});
-  return imageCount % 30 === 0 ? '0.80' : '0.25';
+  return imageCount % 30 === 0 ? '0.80' : '0.22';
 }
 
 export async function getFinalPrompt() {
@@ -103,9 +103,9 @@ export async function getFinalPrompt() {
   return prompt.toString();
 }
 
-export async function getJson(prompt: string, iterator: number) {
+export async function getJson(prompt: string) {
   const image = await getLatestDisplayImage();
-  const denoise = ((iterator + 1) * 0.025).toFixed(3);
+  const denoise = 0.5;
   let json;
   let endpoint;
   if (image) {

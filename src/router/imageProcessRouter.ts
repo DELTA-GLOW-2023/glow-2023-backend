@@ -36,7 +36,7 @@ router.post(
     let imageResult: IPrompt;
     try {
       for (let i = 0; i < 30; i++) {
-        const { json, endpoint } = await getJson(prompt, i);
+        const { json, endpoint } = await getJson(prompt);
 
         console.log(`Sending request towards Stable Diffusion API ${i}`);
         console.log(json.prompt);
