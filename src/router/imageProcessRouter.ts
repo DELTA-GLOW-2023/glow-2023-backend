@@ -8,8 +8,8 @@ import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
-import { NegativePrompts } from '../config/negativePrompts';
-import { uploadImageToBucket } from '../service/ImageService';
+import { getJson, uploadImageToBucket } from '../service/PromptService';
+import { IPrompt } from '../model/promptModel';
 
 const router = Router();
 
@@ -23,96 +23,37 @@ const router = Router();
  */
 router.post(
   '/',
-  [
-    check('image')
-      .isString()
-      .notEmpty()
-      .withMessage('Image in base64 format is required.'),
-    check('prompt').isString().notEmpty().withMessage('Prompt is required.'),
-  ],
+  [check('prompt').isString().notEmpty().withMessage('Prompt is required.')],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { image, prompt, promptDescription, secondPrompt, secondPromptDescription } = req.body;
+    const { prompt } = req.body;
 
-    const json = {
-      init_images: [image],
-      prompt: prompt,
-      negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'Euler a',
-      sampler_name: 'Euler a',
-      //@TODO set back to 50 when going live
-      steps: 50,
-      cfg_scale: 4,
-      width: 512,
-      height: 512 * 1.5,
-      alwayson_scripts: {
-        controlnet: {
-          args: [
-            {
-              input_image: image,
-              module: 'openpose_full',
-              model: 'control_sd15_openpose [fef5e48e]',
-              weight: 0.8,
-              control_mode: 1
-            },
-            {
-              input_image: image,
-              module: 'lineart_realistic',
-              model: 'control_v11p_sd15_lineart [43d4be0d]',
-              weight: 1,
-              control_mode: 1
-            },
-          ],
-        },
-      },
-    };
-
-    const json2 = {
-      init_images: [image],
-      prompt: secondPrompt,
-      negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'Euler a',
-      sampler_name: 'Euler a',
-      //@TODO set back to 50 when going live
-      steps: 50,
-      cfg_scale: 4,
-      width: 512,
-      height: 512 * 1.5,
-      alwayson_scripts: {
-        controlnet: {
-          args: [
-            {
-              input_image: image,
-              module: 'openpose_full',
-              model: 'control_sd15_openpose [fef5e48e]',
-              weight: 0.8,
-              control_mode: 1
-            },
-            {
-              input_image: image,
-              module: 'lineart_realistic',
-              model: 'control_v11p_sd15_lineart [43d4be0d]',
-              weight: 1,
-              control_mode: 1
-            },
-          ],
-        },
-      },
-    };
-
+    let imageId: string;
+    let imageResult: IPrompt;
     try {
-      console.log('Sending request towards Stable Diffusion API');
-      const [response, response2] = await axios.all([axios.post(`${apiUrl}/sdapi/v1/txt2img`, json), axios.post(`${apiUrl}/sdapi/v1/txt2img`, json2)]);
+      for (let i = 0; i < 10; i++) {
+        const { json, endpoint } = await getJson(prompt);
 
-      const result = await uploadImageToBucket(response.data.images[0], response2.data.images[0], promptDescription, secondPromptDescription);
+        console.log(`Sending request towards Stable Diffusion API ${i}`);
+        const response = await axios.post(
+          `${apiUrl}/sdapi/v1/${endpoint}2img`,
+          json
+        );
 
+        imageResult = await uploadImageToBucket(
+          response.data.images[0],
+          prompt,
+          imageId
+        );
+
+        imageId = imageResult._id;
+      }
       const message: IImageResponse = {
-        image: result.image,
-        secondImage: result.secondImage,
+        promptResult: imageResult,
         message: 'Image processed successfully!',
       };
 
