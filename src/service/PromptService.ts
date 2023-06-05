@@ -86,31 +86,29 @@ export async function imageUrlToBase64(url: string) {
   }
 }
 
-export async function getDenoise() {
-  const imageCount = await PromptModel.countDocuments({});
-  return imageCount % 30 === 0 ? '0.80' : '0.22';
-}
-
 export async function getFinalPrompt() {
   const lastImages = await PromptModel.find({})
     .sort({ createdAt: -1 })
     .limit(6);
 
   const prompt = lastImages.map((image, i) => {
-    return `(${image.imagePrompt}:${1.5 - i * 0.2})`;
+    return `(${image.imagePrompt}:${(1.5 - i * 0.2).toFixed(1)})`;
   });
 
-  return prompt.toString();
+  const staticPrompt =
+    ', light art, led lights, beautiful, highly detailed, high resolution, 4k, ultra hd, crystal clear, 8K UHD,  highly detailed face,(freckles:0.5),<lora:Neno:0.25> Neon Light';
+  return prompt.toString() + staticPrompt;
 }
 
 export async function getJson(prompt: string) {
   const image = await getLatestDisplayImage();
-  const denoise = 0.5;
+  const denoise = 0.6;
   let json;
   let endpoint;
   if (image) {
     const finalPrompt = await getFinalPrompt();
     const finalImage = await imageUrlToBase64(image);
+    console.log(finalPrompt);
     json = {
       init_images: [finalImage],
       prompt: finalPrompt,

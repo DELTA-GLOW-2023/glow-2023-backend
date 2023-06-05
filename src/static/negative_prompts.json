@@ -1,5 +1,7 @@
 {
   "negative_prompts": [
+    "BadDream",
+    "EasyNegative",
     "naked",
     "violence",
     "blood",
@@ -32,6 +34,9 @@
     "ugly",
     "bad",
     "immature",
-    "children"
+    "children",
+    "naked belly",
+    "cleavage",
+    "watermarks"
   ]
 }

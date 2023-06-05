@@ -35,12 +35,10 @@ router.post(
     let imageId: string;
     let imageResult: IPrompt;
     try {
-      for (let i = 0; i < 30; i++) {
+      for (let i = 0; i < 10; i++) {
         const { json, endpoint } = await getJson(prompt);
 
         console.log(`Sending request towards Stable Diffusion API ${i}`);
-        console.log(json.prompt);
-        console.log(json.denoising_strength);
         const response = await axios.post(
           `${apiUrl}/sdapi/v1/${endpoint}2img`,
           json
