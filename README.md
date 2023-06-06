@@ -8,7 +8,8 @@ To set up the project, run:
 docker-compose up --build -d
 ```
 
-Then, access minio using the credentials in the docker-compose file and generate a new access key and secret. Also, make sure that the "images" bucket has its access policy set to "public" in the minio web UI.
+Then, access minio using the credentials in the docker-compose file and generate a new access key and secret. Also, make
+sure that the "images" bucket has its access policy set to "public" in the minio web UI.
 
 Then, add the following to the docker-compose file:
 
@@ -20,3 +21,11 @@ Then, add the following to the docker-compose file:
 After that you can run the front / backend together with the database and minio instance.
 
 If the workstation is up & running you're able to use the application now.
+
+### Convert Images to video
+
+If you have a bunch of images saved in your minio instance, you can convert them to a video using the following command:
+
+```bash
+npx ts-node src/service/saveImagesToFileSystemService.ts
+```
