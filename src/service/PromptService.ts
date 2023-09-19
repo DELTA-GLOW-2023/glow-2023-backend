@@ -10,6 +10,8 @@ import {
 import { IPrompt, PromptModel } from '../model/promptModel';
 import axios from 'axios';
 import { NegativePrompts } from '../config/negativePrompts';
+import * as tf from "@tensorflow/tfjs-node";
+import * as nsfwjs from 'nsfwjs'
 
 const minioClient = new Client({
   endPoint: minioEndpoint,
@@ -28,6 +30,27 @@ const ImageToBucket = async (
   await minioClient.putObject(bucketName, imageName, imageBuffer);
   return `http://${minioPublicEndpoint}:${minioPublicPort}/${bucketName}/${imageName}`;
 };
+
+export const isContentSafeForDisplay = async (
+  model: any,
+  image: string,
+): Promise<boolean> => {
+  const buffer = Buffer.from(image, 'base64');
+  const img: any = tf.node.decodeImage(buffer, 3);
+
+  const predictions: nsfwjs.predictionType[] = await model.classify(img);
+
+  // Exclude drawing and neutral
+  const filteredPredictions = predictions?.filter((prediction) => prediction.className != "Neutral" && prediction.className != "Drawing")
+  
+  // Validate safety
+  const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.75);
+
+  // Tensor memory must be managed explicitly (it is not sufficient to let a tf.Tensor go out of scope for its memory to be released).
+  img.dispose();
+
+  return isSafe;
+}
 
 export const uploadImageToBucket = async (
   image: string,
@@ -82,8 +105,19 @@ export async function imageUrlToBase64(url: string) {
     const buffer = Buffer.from(response.data, 'binary');
     return buffer.toString('base64');
   } catch (error) {
+    console.log(url)
+    console.log(error)
     throw new Error('Failed to convert image to base64');
   }
+}
+
+export async function removeLatestImages(n: number) {
+  const lastImages = await PromptModel.find({})
+    .sort({ createdAt: -1 })
+    .limit(n)
+
+  const imageIds = lastImages.map(p => p._id)
+  return imageIds.forEach(async id => await PromptModel.findByIdAndDelete(id))
 }
 
 export async function getFinalPrompt() {
