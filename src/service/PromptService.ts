@@ -44,7 +44,8 @@ export const isContentSafeForDisplay = async (
   const filteredPredictions = predictions?.filter((prediction) => prediction.className != "Neutral" && prediction.className != "Drawing")
   
   // Validate safety
-  const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.75);
+  console.log(filteredPredictions)
+  const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.65);
 
   // Tensor memory must be managed explicitly (it is not sufficient to let a tf.Tensor go out of scope for its memory to be released).
   img.dispose();
@@ -109,6 +110,10 @@ export async function imageUrlToBase64(url: string) {
     console.log(error)
     throw new Error('Failed to convert image to base64');
   }
+}
+
+export async function removePromptModel(id: string) {
+  return await PromptModel.findByIdAndDelete(id)
 }
 
 export async function removeLatestImages(n: number) {

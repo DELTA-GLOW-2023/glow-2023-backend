@@ -8,7 +8,7 @@ import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
-import { getJson, isContentSafeForDisplay, removeLatestImages, uploadImageToBucket } from '../service/PromptService';
+import { getJson, isContentSafeForDisplay, removeLatestImages, removePromptModel, uploadImageToBucket } from '../service/PromptService';
 import { IPrompt } from '../model/promptModel';
 import * as nsfwjs from 'nsfwjs'
 import * as tf from "@tensorflow/tfjs-node";
@@ -55,18 +55,18 @@ router.post(
           response.data.images[0]
         );
 
-        // If image is not safe 
-        if (!isSafe) {
-          // remove last prompt model if i is greater than 0
-          await removeLatestImages(i)
-          res.status(200).json({ Message: 'Content is not safe for display' })
+        if (!isSafe && imageId) {
+          await removePromptModel(imageId)
+          return res.status(200).json({ Message: 'Content is not safe for display' })
+        } else if (!isSafe) {
+          return res.status(200).json({ Message: 'Content is not safe for display' })
         } else {
           imageResult = await uploadImageToBucket(
             response.data.images[0],
             prompt,
             imageId
           );
-  
+
           imageId = imageResult._id;
         }
       }
