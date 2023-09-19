@@ -8,8 +8,10 @@ import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
-import { getJson, uploadImageToBucket } from '../service/PromptService';
+import { getJson, isContentSafeForDisplay, removeLatestImages, uploadImageToBucket } from '../service/PromptService';
 import { IPrompt } from '../model/promptModel';
+import * as nsfwjs from 'nsfwjs'
+import * as tf from "@tensorflow/tfjs-node";
 
 const router = Router();
 
@@ -34,6 +36,10 @@ router.post(
 
     let imageId: string;
     let imageResult: IPrompt;
+
+    // Load model
+    const model = await nsfwjs.load();
+
     try {
       for (let i = 0; i < 10; i++) {
         const { json, endpoint } = await getJson(prompt);
@@ -44,13 +50,25 @@ router.post(
           json
         );
 
-        imageResult = await uploadImageToBucket(
-          response.data.images[0],
-          prompt,
-          imageId
+        const isSafe = await isContentSafeForDisplay(
+          model, // Model to prevent multiple initialization
+          response.data.images[0]
         );
 
-        imageId = imageResult._id;
+        // If image is not safe 
+        if (!isSafe) {
+          // remove last prompt model if i is greater than 0
+          await removeLatestImages(i)
+          res.status(200).json({ Message: 'Content is not safe for display' })
+        } else {
+          imageResult = await uploadImageToBucket(
+            response.data.images[0],
+            prompt,
+            imageId
+          );
+  
+          imageId = imageResult._id;
+        }
       }
       const message: IImageResponse = {
         promptResult: imageResult,
