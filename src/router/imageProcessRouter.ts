@@ -12,6 +12,7 @@ import { getJson, isContentSafeForDisplay, removeLatestImages, removePromptModel
 import { IPrompt } from '../model/promptModel';
 import * as nsfwjs from 'nsfwjs'
 import * as tf from "@tensorflow/tfjs-node";
+import {getModel} from "../index";
 
 const router = Router();
 
@@ -37,8 +38,7 @@ router.post(
     let imageId: string;
     let imageResult: IPrompt;
 
-    // Load model
-    const model = await nsfwjs.load();
+    const model = await getModel();
 
     try {
       for (let i = 0; i < 10; i++) {

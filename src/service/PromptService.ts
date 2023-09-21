@@ -45,7 +45,7 @@ export const isContentSafeForDisplay = async (
   
   // Validate safety
   console.log(filteredPredictions)
-  const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.65);
+  const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.85);
 
   // Tensor memory must be managed explicitly (it is not sufficient to let a tf.Tensor go out of scope for its memory to be released).
   img.dispose();
