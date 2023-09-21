@@ -51,7 +51,7 @@ router.post(
         );
 
         const isSafe = await isContentSafeForDisplay(
-          model, // Model to prevent multiple initialization
+          model,
           response.data.images[0]
         );
 

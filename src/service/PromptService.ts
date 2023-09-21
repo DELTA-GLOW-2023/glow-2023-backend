@@ -40,14 +40,11 @@ export const isContentSafeForDisplay = async (
 
   const predictions: nsfwjs.predictionType[] = await model.classify(img);
 
-  // Exclude drawing and neutral
   const filteredPredictions = predictions?.filter((prediction) => prediction.className != "Neutral" && prediction.className != "Drawing")
   
-  // Validate safety
   console.log(filteredPredictions)
   const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.85);
 
-  // Tensor memory must be managed explicitly (it is not sufficient to let a tf.Tensor go out of scope for its memory to be released).
   img.dispose();
 
   return isSafe;
@@ -106,8 +103,6 @@ export async function imageUrlToBase64(url: string) {
     const buffer = Buffer.from(response.data, 'binary');
     return buffer.toString('base64');
   } catch (error) {
-    console.log(url)
-    console.log(error)
     throw new Error('Failed to convert image to base64');
   }
 }
