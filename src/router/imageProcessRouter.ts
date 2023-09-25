@@ -8,7 +8,7 @@ import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
-import { getJson, uploadImageToBucket } from '../service/PromptService';
+import { getJson, isContentSafeForDisplay, removePromptModel, uploadImageToBucket } from '../service/PromptService';
 import { IPrompt } from '../model/promptModel';
 
 const router = Router();
@@ -34,6 +34,7 @@ router.post(
 
     let imageId: string;
     let imageResult: IPrompt;
+
     try {
       for (let i = 0; i < 10; i++) {
         const { json, endpoint } = await getJson(prompt);
@@ -43,6 +44,18 @@ router.post(
           `${apiUrl}/sdapi/v1/${endpoint}2img`,
           json
         );
+
+        const isSafe = await isContentSafeForDisplay(
+          response.data.images[0]
+        );
+
+        if (!isSafe && imageId) {
+          await removePromptModel(imageId);
+        }
+
+        if (!isSafe) {
+          return res.status(200).json({ Message: 'Content is not safe for display' });
+        }
 
         imageResult = await uploadImageToBucket(
           response.data.images[0],

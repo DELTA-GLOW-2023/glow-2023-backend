@@ -10,6 +10,9 @@ import {
 import { IPrompt, PromptModel } from '../model/promptModel';
 import axios from 'axios';
 import { NegativePrompts } from '../config/negativePrompts';
+import * as tf from '@tensorflow/tfjs-node';
+import * as nsfwjs from 'nsfwjs';
+import {getModel} from '../index';
 
 const minioClient = new Client({
   endPoint: minioEndpoint,
@@ -27,6 +30,34 @@ const ImageToBucket = async (
   const imageName = `${Date.now()}.png`;
   await minioClient.putObject(bucketName, imageName, imageBuffer);
   return `http://${minioPublicEndpoint}:${minioPublicPort}/${bucketName}/${imageName}`;
+};
+
+const NSFW_PROBABILITIES = {
+  Hentai: 0.50,
+  Porn: 0.45,
+  Sexy: 0.50,
+  Drawing: 1,
+  Neutral: 1,
+};
+
+export const isContentSafeForDisplay = async (
+  image: string,
+): Promise<boolean> => {
+  const model = await getModel();
+
+  const buffer = Buffer.from(image, 'base64');
+  
+  const img: any = tf.node.decodeImage(buffer, 3);
+
+  const predictions: nsfwjs.predictionType[] = await model.classify(img);
+
+  const filteredPredictions = predictions?.filter((prediction) => prediction.className != 'Neutral' && prediction.className != 'Drawing');
+  
+  const isSafe = filteredPredictions.every((prediction: nsfwjs.predictionType) => prediction.probability <= NSFW_PROBABILITIES[prediction.className]);
+
+  img.dispose();
+
+  return isSafe;
 };
 
 export const uploadImageToBucket = async (
@@ -84,6 +115,10 @@ export async function imageUrlToBase64(url: string) {
   } catch (error) {
     throw new Error('Failed to convert image to base64');
   }
+}
+
+export async function removePromptModel(id: string) {
+  return await PromptModel.findByIdAndDelete(id);
 }
 
 export async function getFinalPrompt() {
