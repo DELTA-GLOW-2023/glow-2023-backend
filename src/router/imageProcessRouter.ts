@@ -50,17 +50,13 @@ router.post(
         );
 
         if (!isSafe && imageId) {
-          await removePromptModel(imageId)
-          console.log('removing prompt model')
+          await removePromptModel(imageId);
         }
 
         if (!isSafe) {
-          console.log('Content not safe return here')
-          return res.status(200).json({ Message: 'Content is not safe for display' })
+          return res.status(200).json({ Message: 'Content is not safe for display' });
         }
 
-        console.log('Content is safe, upload')
-        
         imageResult = await uploadImageToBucket(
           response.data.images[0],
           prompt,

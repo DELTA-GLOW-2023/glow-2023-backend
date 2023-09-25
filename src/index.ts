@@ -4,7 +4,7 @@ import cors from 'cors';
 import { ViewImageRouter } from './router/viewImageRouter';
 import { dbUrl, port } from './config/config';
 import mongoose from 'mongoose';
-import * as nsfwjs from "nsfwjs";
+import * as nsfwjs from 'nsfwjs';
 
 const model = nsfwjs.load();
 

@@ -10,9 +10,9 @@ import {
 import { IPrompt, PromptModel } from '../model/promptModel';
 import axios from 'axios';
 import { NegativePrompts } from '../config/negativePrompts';
-import * as tf from "@tensorflow/tfjs-node";
-import * as nsfwjs from 'nsfwjs'
-import {getModel} from "../index";
+import * as tf from '@tensorflow/tfjs-node';
+import * as nsfwjs from 'nsfwjs';
+import {getModel} from '../index';
 
 const minioClient = new Client({
   endPoint: minioEndpoint,
@@ -38,19 +38,19 @@ export const isContentSafeForDisplay = async (
   const model = await getModel();
 
   const buffer = Buffer.from(image, 'base64');
+  
   const img: any = tf.node.decodeImage(buffer, 3);
 
   const predictions: nsfwjs.predictionType[] = await model.classify(img);
 
-  const filteredPredictions = predictions?.filter((prediction) => prediction.className != "Neutral" && prediction.className != "Drawing")
+  const filteredPredictions = predictions?.filter((prediction) => prediction.className != 'Neutral' && prediction.className != 'Drawing');
   
-  console.log(filteredPredictions)
   const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.50);
 
   img.dispose();
 
   return isSafe;
-}
+};
 
 export const uploadImageToBucket = async (
   image: string,
@@ -110,7 +110,7 @@ export async function imageUrlToBase64(url: string) {
 }
 
 export async function removePromptModel(id: string) {
-  return await PromptModel.findByIdAndDelete(id)
+  return await PromptModel.findByIdAndDelete(id);
 }
 
 export async function getFinalPrompt() {
