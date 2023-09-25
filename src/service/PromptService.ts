@@ -32,6 +32,14 @@ const ImageToBucket = async (
   return `http://${minioPublicEndpoint}:${minioPublicPort}/${bucketName}/${imageName}`;
 };
 
+const NSFW_PROBABILITIES = {
+  Hentai: 0.50,
+  Porn: 0.45,
+  Sexy: 0.50,
+  Drawing: 1,
+  Neutral: 1,
+};
+
 export const isContentSafeForDisplay = async (
   image: string,
 ): Promise<boolean> => {
@@ -45,7 +53,7 @@ export const isContentSafeForDisplay = async (
 
   const filteredPredictions = predictions?.filter((prediction) => prediction.className != 'Neutral' && prediction.className != 'Drawing');
   
-  const isSafe = filteredPredictions.every((prediction) => prediction.probability <= 0.50);
+  const isSafe = filteredPredictions.every((prediction: nsfwjs.predictionType) => prediction.probability <= NSFW_PROBABILITIES[prediction.className]);
 
   img.dispose();
 
