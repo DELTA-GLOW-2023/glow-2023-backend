@@ -8,11 +8,8 @@ import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
-import { getJson, isContentSafeForDisplay, removeLatestImages, removePromptModel, uploadImageToBucket } from '../service/PromptService';
+import { getJson, isContentSafeForDisplay, removePromptModel, uploadImageToBucket } from '../service/PromptService';
 import { IPrompt } from '../model/promptModel';
-import * as nsfwjs from 'nsfwjs'
-import * as tf from "@tensorflow/tfjs-node";
-import {getModel} from "../index";
 
 const router = Router();
 
@@ -38,8 +35,6 @@ router.post(
     let imageId: string;
     let imageResult: IPrompt;
 
-    const model = await getModel();
-
     try {
       for (let i = 0; i < 10; i++) {
         const { json, endpoint } = await getJson(prompt);
@@ -51,24 +46,28 @@ router.post(
         );
 
         const isSafe = await isContentSafeForDisplay(
-          model,
           response.data.images[0]
         );
 
         if (!isSafe && imageId) {
           await removePromptModel(imageId)
-          return res.status(200).json({ Message: 'Content is not safe for display' })
-        } else if (!isSafe) {
-          return res.status(200).json({ Message: 'Content is not safe for display' })
-        } else {
-          imageResult = await uploadImageToBucket(
-            response.data.images[0],
-            prompt,
-            imageId
-          );
-
-          imageId = imageResult._id;
+          console.log('removing prompt model')
         }
+
+        if (!isSafe) {
+          console.log('Content not safe return here')
+          return res.status(200).json({ Message: 'Content is not safe for display' })
+        }
+
+        console.log('Content is safe, upload')
+        
+        imageResult = await uploadImageToBucket(
+          response.data.images[0],
+          prompt,
+          imageId
+        );
+
+        imageId = imageResult._id;
       }
       const message: IImageResponse = {
         promptResult: imageResult,
