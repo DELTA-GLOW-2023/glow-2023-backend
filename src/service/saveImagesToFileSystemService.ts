@@ -77,7 +77,10 @@ const saveImagesToFileSystemService = async () => {
   }
 };
 
-saveImagesToFileSystemService().catch((reason) => {
+saveImagesToFileSystemService().then(() => {
+  console.log("Success!");
+  process.exit(0);
+}).catch((reason) => {
   console.error(reason);
   process.exit(0);
 });
