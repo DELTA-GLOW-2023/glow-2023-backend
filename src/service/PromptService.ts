@@ -60,6 +60,22 @@ export const isContentSafeForDisplay = async (
   return isSafe;
 };
 
+// Filter user prompt from forbidden words
+export const filterPrompt = async (prompt: string) => {
+  const filterUrl = 'http://localhost:8080/filter';
+
+  // Use the URL below in case you want to remove bad words
+  // instead of throwing an error
+  const noErrorFilterUrl = 'http://localhost:8080/filter/no-error';
+
+  const response = await axios.post(noErrorFilterUrl, {prompt});
+
+  if (response.status === 400 || response.status === 500)
+    throw Error(response.data.message);
+
+  return response.data.prompt;
+};
+
 export const uploadImageToBucket = async (
   image: string,
   promptDescription: string,

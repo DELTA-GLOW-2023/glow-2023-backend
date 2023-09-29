@@ -8,7 +8,7 @@ import { check, validationResult } from 'express-validator';
 import axios from 'axios';
 import { apiUrl } from '../config/config';
 import { IImageResponse } from '../interface/iImageResponse';
-import { getJson, isContentSafeForDisplay, removePromptModel, uploadImageToBucket } from '../service/PromptService';
+import { getJson, isContentSafeForDisplay, removePromptModel, uploadImageToBucket, filterPrompt } from '../service/PromptService';
 import { IPrompt } from '../model/promptModel';
 
 const router = Router();
@@ -37,7 +37,9 @@ router.post(
 
     try {
       for (let i = 0; i < 10; i++) {
-        const { json, endpoint } = await getJson(prompt);
+        // Filter the prompt before handing it in to the "getJson" method
+        const filteredPrompt = await filterPrompt(prompt);
+        const { json, endpoint } = await getJson(filteredPrompt);
 
         console.log(`Sending request towards Stable Diffusion API ${i}`);
         const response = await axios.post(
