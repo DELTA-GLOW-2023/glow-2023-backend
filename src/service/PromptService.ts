@@ -6,6 +6,8 @@ import {
   minioPort,
   minioPublicEndpoint,
   minioPublicPort,
+  filterServerUrl,
+  noErrorFilterServerUrl
 } from '../config/config';
 import { IPrompt, PromptModel } from '../model/promptModel';
 import axios from 'axios';
@@ -62,13 +64,16 @@ export const isContentSafeForDisplay = async (
 
 // Filter user prompt from forbidden words
 export const filterPrompt = async (prompt: string) => {
-  const filterUrl = 'http://localhost:8080/filter';
 
-  // Use the URL below in case you want to remove bad words
-  // instead of throwing an error
-  const noErrorFilterUrl = 'http://localhost:8080/filter/no-error';
+  // This option throws errors and returns a filtered prompt.
+  // In case of encountering the first inappropriate/forbidden word/phrase,
+  // or indicating an unsupported language, an error is thrown.
+  // const response = await axios.post(filterServerUrl, {prompt});
 
-  const response = await axios.post(noErrorFilterUrl, {prompt});
+  // This option doesn't throw errors and returns a filtered prompt.
+  // If something went wrong: the prompt was in unsupported language,
+  // then an empty string is returned instead of an error.
+  const response = await axios.post(noErrorFilterServerUrl, {prompt});
 
   if (response.status === 400 || response.status === 500)
     throw Error(response.data.message);
