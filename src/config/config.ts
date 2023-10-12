@@ -23,4 +23,4 @@ export const filterServerUrl = process.env.FILTER_SERVICE_URL ?? 'http://localho
 // The URL for prompt filtering endpoint,
 // which doesn't throw any errors and
 // always returns a filtered prompt as a result
-export const noErrorFilterServerUrl = process.env.FILTER_SERVICE_URL2 ?? 'http://localhost:8080/filter2';
+export const noErrorFilterServerUrl = process.env.FILTER_SERVICE_URL2 ?? 'http://localhost:8080/filter/no-error';
