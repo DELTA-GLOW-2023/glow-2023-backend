@@ -20,7 +20,7 @@
     "express-validator": "^7.0.1",
     "minio": "^7.1.0",
     "mongoose": "^7.1.1",
-    "sharp": "^0.32.0"
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
