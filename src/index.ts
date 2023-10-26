@@ -2,6 +2,7 @@ import express, { json } from 'express';
 import { ImageProcessRouter } from './router/imageProcessRouter';
 import cors from 'cors';
 import { ViewImageRouter } from './router/viewImageRouter';
+import { DeleteImageRouter } from './router/deleteImageRouter';
 import { dbUrl, port } from './config/config';
 import mongoose from 'mongoose';
 import * as nsfwjs from 'nsfwjs';
@@ -22,6 +23,7 @@ app.use(
 
 app.use('/process-image', ImageProcessRouter);
 app.use('/view-image', ViewImageRouter);
+app.use('/delete-image', DeleteImageRouter);
 
 const main = async () => {
   await mongoose.connect(dbUrl);
