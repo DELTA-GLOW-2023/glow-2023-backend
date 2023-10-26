@@ -138,6 +138,10 @@ export async function imageUrlToBase64(url: string) {
   }
 }
 
+export async function removeLatestPromptModel() {
+  return await PromptModel.findOneAndDelete({},{"sort": { "_id": -1 }})
+}
+
 export async function removePromptModel(id: string) {
   return await PromptModel.findByIdAndDelete(id);
 }
