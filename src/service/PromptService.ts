@@ -97,13 +97,17 @@ export const viewImages = async (): Promise<IPrompt[]> => {
 };
 
 export async function imageUrlToBase64(url: string) {
-    try {
-        const response = await axios.get(url, {responseType: 'arraybuffer'});
-        const buffer = Buffer.from(response.data, 'binary');
-        return buffer.toString('base64');
-    } catch (error) {
-        throw new Error('Failed to convert image to base64');
-    }
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const buffer = Buffer.from(response.data, 'binary');
+    return buffer.toString('base64');
+  } catch (error) {
+    throw new Error('Failed to convert image to base64');
+  }
+}
+
+export async function removeLatestPromptModel() {
+  return PromptModel.findOneAndDelete({},{'sort': { '_id': -1 }});
 }
 
 export async function getFinalPrompt() {
