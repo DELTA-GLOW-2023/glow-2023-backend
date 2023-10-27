@@ -107,18 +107,7 @@ export async function imageUrlToBase64(url: string) {
 }
 
 export async function removeLatestPromptModel() {
-  return await PromptModel.findOneAndDelete({},{'sort': { '_id': -1 }});
-}
-
-export async function removePromptModel(id: string) {
-  return await PromptModel.findByIdAndDelete(id);
-    try {
-        const response = await axios.get(url, {responseType: 'arraybuffer'});
-        const buffer = Buffer.from(response.data, 'binary');
-        return buffer.toString('base64');
-    } catch (error) {
-        throw new Error('Failed to convert image to base64');
-    }
+  return PromptModel.findOneAndDelete({},{'sort': { '_id': -1 }});
 }
 
 export async function getFinalPrompt() {
