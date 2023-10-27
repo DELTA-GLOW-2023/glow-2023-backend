@@ -3,17 +3,10 @@
  Express router for processing images.
  @module ImageProcessRouter
  */
-import {Request, Response, Router} from 'express';
-import {check, validationResult} from 'express-validator';
-import axios from 'axios';
-import {apiUrl} from '../config/config';
-import {IImageResponse} from '../interface/iImageResponse';
-import {
-    getJson,
-    uploadImageToBucket,
-    filterPrompt
-} from '../service/PromptService';
-import {IPrompt} from '../model/promptModel';
+import { Request, Response, Router } from 'express';
+import { check, validationResult } from 'express-validator';
+import { IImageResponse } from '../interface/iImageResponse';
+import { PromptModel } from '../model/promptModel';
 
 const router = Router();
 
@@ -26,47 +19,77 @@ const router = Router();
  @throws {Error} Throws an error if an error occurs while processing the image.
  */
 router.post(
-    '/',
-    [check('prompt').isString().notEmpty().withMessage('Prompt is required.')],
-    async (req: Request, res: Response) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array()});
-        }
+  '/',
+  [
+    check('prompt').isString().notEmpty().withMessage('Prompt is required.'),
+    check('method').isString().notEmpty().withMessage('Method is required.'),
+  ],
+  async (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-        const {prompt} = req.body;
+    const { prompt, method } = req.body;
 
-        let imageResult: IPrompt;
-
-        try {
-            for (let i = 0; i < 10; i++) {
-                // Filter the prompt before handing it in to the "getJson" method
-                const filteredPrompt = await filterPrompt(prompt);
-                const {json, endpoint} = await getJson(filteredPrompt);
-
-                console.log(`Sending request towards Stable Diffusion API ${i}`);
-                const response = await axios.post(
-                    `${apiUrl}/sdapi/v1/${endpoint}2img`,
-                    json
-                );
-                imageResult = await uploadImageToBucket(
-                    response.data.images[0],
-                    prompt,
-                );
-            }
-            const message: IImageResponse = {
-                promptResult: imageResult,
-                message: 'Image processed successfully!',
+    try {
+      switch (method) {
+        case 'text': {
+          try {
+            // await filterPrompt(prompt);
+            const newPrompt = {
+              prompt: prompt,
+              approved: false,
+              isUsed: false,
             };
 
-            res.status(200).json(message);
-        } catch (error) {
-            console.error(error);
-            res
-                .status(500)
-                .json({Message: 'An error occurred while processing the image.'});
+            const promptModel = new PromptModel(newPrompt);
+            await promptModel.save();
+          } catch {
+            return res
+              .status(400)
+              .json({ message: 'Prompt is inappropriate.' });
+          }
+          break;
         }
+        case 'icon': {
+          const newPrompt = {
+            prompt: prompt,
+            approved: true,
+            isUsed: false,
+          };
+
+          const promptModel = new PromptModel(newPrompt);
+          await promptModel.save();
+          break;
+        }
+        default: {
+          try {
+            // await filterPrompt(prompt);
+            const newPrompt = {
+              prompt: prompt,
+              approved: false,
+              isUsed: false,
+            };
+
+            const promptModel = new PromptModel(newPrompt);
+            await promptModel.save();
+          } catch {
+            return res
+              .status(400)
+              .json({ message: 'Prompt is inappropriate.' });
+          }
+          break;
+        }
+      }
+      res.status(200).json({ message: 'Success' });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ Message: 'An error occurred while processing the image.' });
     }
+  }
 );
 
 export const ImageProcessRouter = router;

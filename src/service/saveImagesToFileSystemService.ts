@@ -2,9 +2,9 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 
-import { PromptModel } from '../model/promptModel';
 import mongoose from 'mongoose';
 import { dbUrl } from '../config/config';
+import { PromptImageModel } from '../model/promptImageModel';
 
 const downloadImage = async (imageUrl: string, filePath: string) => {
   const response = await axios.get(imageUrl, { responseType: 'stream' });
@@ -36,7 +36,7 @@ const downloadAndSaveImages = async (urls: string[]) => {
 
 const saveImagesToFileSystemService = async () => {
   await mongoose.connect(dbUrl);
-  const images = await PromptModel.find({});
+  const images = await PromptImageModel.find({});
 
   const imageUrls = images.map((image) => {
     return image.image;
