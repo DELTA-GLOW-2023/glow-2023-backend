@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { PromptModel } from '../model/promptModel';
-import { apiKeyMiddleware } from '../middleware/authMiddleware';
+import { apiKeyMiddleware } from '../middleware/apiKeyMiddleware';
 
 const router = Router();
 

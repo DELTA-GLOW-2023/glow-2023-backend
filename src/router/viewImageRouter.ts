@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getLatestDisplayImage, viewImages } from '../service/PromptService';
-import { apiKeyMiddleware } from '../middleware/authMiddleware';
+import { apiKeyMiddleware } from '../middleware/apiKeyMiddleware';
 
 const viewImageRouter = Router();
 
