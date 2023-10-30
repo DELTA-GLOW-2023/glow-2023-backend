@@ -1,6 +1,6 @@
-import { IPrompt } from '../model/promptModel';
+import { IImagePrompt } from '../model/promptImageModel';
 
 export interface IImageResponse {
-  promptResult: IPrompt;
+  promptResult: IImagePrompt;
   message: string;
 }

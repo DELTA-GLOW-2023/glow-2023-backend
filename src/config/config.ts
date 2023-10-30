@@ -13,14 +13,21 @@ export const minioAccessKey = process.env.MINIO_ACCESS_KEY ?? 'minioadmin';
 export const minioAccessSecret =
   process.env.MINIO_ACCESS_SECRET ?? 'minioadmin';
 
-export const minioPublicEndpoint = process.env.MINIO_PUBLIC_ENDPOINT ?? 'localhost';
-export const minioPublicPort = parseInt(process.env.MINIO_PUBLIC_PORT ?? '4001');
+export const minioPublicEndpoint =
+  process.env.MINIO_PUBLIC_ENDPOINT ?? 'localhost';
+export const minioPublicPort = parseInt(
+  process.env.MINIO_PUBLIC_PORT ?? '4001'
+);
+
+export const apiKey = process.env.ADMIN_API_KEY ?? '';
 
 // The URL for prompt filtering endpoint,
 // which throws an error upon finding an inappropriate prompt
-export const filterServerUrl = process.env.FILTER_SERVICE_URL ?? 'http://localhost:8080/filter';
+export const filterServerUrl =
+  process.env.FILTER_SERVICE_URL ?? 'http://localhost:8080/filter';
 
 // The URL for prompt filtering endpoint,
 // which doesn't throw any errors and
 // always returns a filtered prompt as a result
-export const noErrorFilterServerUrl = process.env.FILTER_SERVICE_URL2 ?? 'http://localhost:8080/filter/no-error';
+export const noErrorFilterServerUrl =
+  process.env.FILTER_SERVICE_URL2 ?? 'http://localhost:8080/filter/no-error';

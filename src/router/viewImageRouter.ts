@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { getLatestDisplayImage, viewImages } from '../service/PromptService';
+import { apiKeyMiddleware } from '../middleware/apiKeyMiddleware';
 
 const viewImageRouter = Router();
 
-viewImageRouter.get('/', async (req, res) => {
+viewImageRouter.get('/', apiKeyMiddleware, async (req, res) => {
   try {
     const images = await viewImages();
     return res.status(200).json(images);
