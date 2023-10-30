@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { removeLatestPromptModel } from '../service/PromptService';
+import { addApprovedPromptModel, removeLatestPromptModel } from '../service/PromptService';
 import { apiKey } from '../config/config';
 
 const router = Router();
@@ -10,6 +10,7 @@ router.post('/', async (req, res) => {
   }
   try {
     await removeLatestPromptModel();
+	await addApprovedPromptModel('vulcano');
     return res.status(200).json({ message: 'Success' });
   } catch (error) {
     return res.status(500).json({ message: 'Internal server error' });
