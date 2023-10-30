@@ -1,17 +1,16 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { PromptModel } from '../model/promptModel';
-import { apiKey } from '../config/config';
+import { apiKeyMiddleware } from '../middleware/authMiddleware';
 
 const router = Router();
+
+router.use(apiKeyMiddleware);
 
 router.post(
   '/approve',
   check('promptId').isString().notEmpty().withMessage('Prompt Id is required.'),
   async (req, res) => {
-    if (!req.headers.authorization || req.headers.authorization !== apiKey) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
     const { promptId } = req.body;
 
     const prompt = await PromptModel.findById(promptId);
@@ -26,9 +25,6 @@ router.post(
   '/reject',
   check('promptId').isString().notEmpty().withMessage('Prompt Id is required.'),
   async (req, res) => {
-    if (!req.headers.authorization || req.headers.authorization !== apiKey) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
     const { promptId } = req.body;
     await PromptModel.findByIdAndRemove(promptId);
     return res.status(200).json({ message: 'Success' });
@@ -36,9 +32,6 @@ router.post(
 );
 
 router.get('/', async (req, res) => {
-  if (!req.headers.authorization || req.headers.authorization !== apiKey) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
   const prompts = await PromptModel.find({
     approved: false,
     isUsed: false,

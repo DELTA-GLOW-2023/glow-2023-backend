@@ -1,13 +1,10 @@
 import { Router } from 'express';
 import { getLatestDisplayImage, viewImages } from '../service/PromptService';
-import { apiKey } from '../config/config';
+import { apiKeyMiddleware } from '../middleware/authMiddleware';
 
 const viewImageRouter = Router();
 
-viewImageRouter.get('/', async (req, res) => {
-  if (!req.headers.authorization || req.headers.authorization !== apiKey) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+viewImageRouter.get('/', apiKeyMiddleware, async (req, res) => {
   try {
     const images = await viewImages();
     return res.status(200).json(images);
