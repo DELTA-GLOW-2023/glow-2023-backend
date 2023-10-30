@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 import { NegativePrompts } from '../config/negativePrompts';
 import { IImagePrompt, PromptImageModel } from '../model/promptImageModel';
+import { PromptModel } from '../model/promptModel';
 
 const minioClient = new Client({
   endPoint: minioEndpoint,
@@ -69,7 +70,8 @@ export const uploadImageToBucket = async (
 
   if (imageId) {
     const imageModel = await PromptImageModel.findById(imageId);
-    imageModel.image.push(imageUrl);
+
+		imageModel.image.push(imageUrl);
     await imageModel.save();
     return imageModel;
   } else {
@@ -107,6 +109,17 @@ export async function imageUrlToBase64(url: string) {
 
 export async function removeLatestPromptModel() {
   return PromptImageModel.findOneAndDelete({}, { sort: { _id: -1 } });
+}
+
+export async function addApprovedPromptModel(prompt: string) {
+	const newPrompt = {
+		prompt: prompt,
+		approved: true,
+		isUsed: false,
+	};
+
+	const promptModel = new PromptModel(newPrompt);
+	return await promptModel.save();
 }
 
 export async function getFinalPrompt() {
