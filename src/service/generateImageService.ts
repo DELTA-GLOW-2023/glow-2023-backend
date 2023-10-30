@@ -10,7 +10,7 @@ export const generateImages = async (): Promise<void> => {
   const latestValidPrompt = await PromptModel.findOne({
     approved: true,
     isUsed: false,
-  }).sort({ createdAt: -1 });
+  }).sort({ hasPriority: -1, createdAt: -1 });
 
   if (!latestValidPrompt) {
     console.log('Waiting for input... \nSleeping for 2 seconds.');
