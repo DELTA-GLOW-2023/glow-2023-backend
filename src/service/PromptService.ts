@@ -1,12 +1,12 @@
 import { Client } from 'minio';
 import {
+  filterServerUrl,
   minioAccessKey,
   minioAccessSecret,
   minioEndpoint,
   minioPort,
   minioPublicEndpoint,
   minioPublicPort,
-  noErrorFilterServerUrl,
 } from '../config/config';
 import axios from 'axios';
 import { NegativePrompts } from '../config/negativePrompts';
@@ -35,15 +35,15 @@ export const filterPrompt = async (prompt: string) => {
   // This option throws errors and returns a filtered prompt.
   // In case of encountering the first inappropriate/forbidden word/phrase,
   // or indicating an unsupported language, an error is thrown.
-  // const response = await axios.post(filterServerUrl, {prompt});
+  const response = await axios.post(filterServerUrl, {prompt})
+      .catch(() => { return null;});
 
-  // This option doesn't throw errors and returns a filtered prompt.
-  // If something went wrong: the prompt was in unsupported language,
-  // then an empty string is returned instead of an error.
-  const response = await axios.post(noErrorFilterServerUrl, { prompt });
-
-  if (response.status === 400 || response.status === 500)
-    throw Error(response.data.message);
+  // In case of encountering inappropriate prompt and getting an error from filtering,
+  // return an empty string.
+  // To throw an error instead, delete this "if-statement" and the "catch function above".
+  // If the API request is with 4XX or 5XX codes, it will throw an error automatically.
+  if (!response)
+    return '';
 
   return response.data.prompt;
 };
