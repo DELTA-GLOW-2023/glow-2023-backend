@@ -5,7 +5,7 @@ export interface IPrompt extends Document {
   prompt: string;
   approved: boolean;
   isUsed: boolean;
-  hasPriority: boolean;
+  isPanic: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,7 +15,7 @@ const promptModel = new Schema<IPrompt>(
     prompt: { type: String, required: true },
     approved: { type: Boolean, default: false, required: true },
     isUsed: { type: Boolean, default: false, required: true },
-    hasPriority: { type: Boolean, default: false, required: false },
+    isPanic: { type: Boolean, default: false, required: false },
   },
   { timestamps: true }
 );

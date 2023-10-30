@@ -114,7 +114,7 @@ export async function removeLatestPromptModel() {
 export async function addApprovedPromptModel(prompt: string) {
 	const newPrompt = {
 		prompt: prompt,
-    hasPriority: true,
+    isPanic: true,
 		approved: true,
 		isUsed: false,
 	};
