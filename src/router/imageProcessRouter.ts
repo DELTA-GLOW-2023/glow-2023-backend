@@ -5,7 +5,6 @@
  */
 import { Request, Response, Router } from 'express';
 import { check, validationResult } from 'express-validator';
-import { IImageResponse } from '../interface/iImageResponse';
 import { PromptModel } from '../model/promptModel';
 
 const router = Router();

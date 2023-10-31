@@ -5,8 +5,12 @@ import { apiKey } from '../config/config';
 const router = Router();
 
 const panicPrompts: string[] = [
-	'snowflake', 
-	'vulcano',
+	'Snowflake', 
+	'Vulcano',
+	'Wolf',
+	'Light bulb',
+	'Mona lisa',
+	'Yarn',
 ];
 
 router.post('/', async (req, res) => {

@@ -44,7 +44,7 @@ export const generateImages = async (): Promise<void> => {
         console.log(`Image ${imageId} saved to database.`);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
