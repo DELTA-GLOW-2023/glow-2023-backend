@@ -7,6 +7,7 @@ import { Request, Response, Router } from 'express';
 import { check, validationResult } from 'express-validator';
 import { IImageResponse } from '../interface/iImageResponse';
 import { PromptModel } from '../model/promptModel';
+import {filterPrompt} from '../service/PromptService';
 
 const router = Router();
 
@@ -36,9 +37,15 @@ router.post(
       switch (method) {
         case 'text': {
           try {
-            // await filterPrompt(prompt);
+            const filteredPrompt = await filterPrompt(prompt);
+            // If the returned prompt is empty, it means that it was inappropriate.
+            // Thus, ignore the prompt.
+            if (filteredPrompt.length === 0)
+              break;
+
+            console.log('The prompt passed successfully');
             const newPrompt = {
-              prompt: prompt,
+              prompt: filteredPrompt,
               approved: false,
               isUsed: false,
             };
@@ -65,9 +72,14 @@ router.post(
         }
         default: {
           try {
-            // await filterPrompt(prompt);
+            const filteredPrompt = await filterPrompt(prompt);
+            // If the returned prompt is empty, it means that it was inappropriate.
+            // Thus, ignore the prompt.
+            if (filteredPrompt.length === 0)
+              break;
+
             const newPrompt = {
-              prompt: prompt,
+              prompt: filteredPrompt,
               approved: false,
               isUsed: false,
             };
