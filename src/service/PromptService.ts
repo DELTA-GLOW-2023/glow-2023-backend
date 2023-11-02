@@ -35,8 +35,8 @@ export const filterPrompt = async (prompt: string) => {
   // This option throws errors and returns a filtered prompt.
   // In case of encountering the first inappropriate/forbidden word/phrase,
   // or indicating an unsupported language, an error is thrown.
-  const response = await axios.post(filterServerUrl, {prompt})
-      .catch(() => { return null;});
+  const response = await axios.post(filterServerUrl, { prompt })
+    .catch(() => { return null; });
 
   // In case of encountering inappropriate prompt and getting an error from filtering,
   // return an empty string.
@@ -65,15 +65,23 @@ export const uploadImageToBucket = async (
   const imageModelData = {
     image: imageUrl,
     imagePrompt: promptDescription,
+    createdAt: new Date(), // Add the createdAt timestamp for the new image
   };
 
   if (imageId) {
     const imageModel = await PromptImageModel.findById(imageId);
-    imageModel.image.push(imageUrl);
+    imageModel.images.push(imageModelData); // Push the new image data to the images array
     await imageModel.save();
     return imageModel;
   } else {
-    const imageModel = new PromptImageModel(imageModelData);
+    const imageModel = new PromptImageModel({
+      imagePrompt: imageModelData.imagePrompt,
+      images: [{
+        image: imageUrl,
+        createdAt: imageModelData.createdAt,
+      }],
+      createdAt: imageModelData.createdAt,
+    });
     await imageModel.save();
 
     return imageModel;
@@ -88,7 +96,31 @@ export const getLatestDisplayImage = async (): Promise<string | undefined> => {
   if (!prompt) {
     return undefined;
   }
-  return prompt.image[prompt.image.length - 1];
+  
+  return prompt.images[prompt.images.length - 1]?.image;
+};
+
+export const getLatestDisplayImageDelayed = async (): Promise<string | undefined> => {
+  const oneMinuteAgo = new Date();
+  oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1);
+
+  const prompt = await PromptImageModel.findOne({
+    createdAt: { $lt: oneMinuteAgo },
+  }).sort({ createdAt: -1 });
+
+  if (!prompt) {
+    return undefined;
+  }
+
+  // Find the latest image created before 1 minute ago
+  const latestImage = prompt.images.reduce((latest, image) => {
+    if (image.createdAt < oneMinuteAgo) {
+      return !latest || image.createdAt > latest.createdAt ? image : latest;
+    }
+    return latest;
+  }, null);
+
+  return latestImage.image || prompt?.images[0]?.image;
 };
 
 export const viewImages = async (): Promise<IImagePrompt[]> => {
