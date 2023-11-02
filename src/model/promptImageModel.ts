@@ -2,7 +2,10 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IImagePrompt extends Document {
   _id: string;
-  image: string[];
+  images: Array<{
+    image: string;
+    createdAt: Date;
+  }>;
   imagePrompt: string;
   createdAt: Date;
   updatedAt: Date;
@@ -10,7 +13,12 @@ export interface IImagePrompt extends Document {
 
 const promptImageModel = new Schema<IImagePrompt>(
   {
-    image: { type: [String], required: true },
+    images: [
+      {
+        image: { type: String, required: true },
+        createdAt: { type: Date, required: true },
+      },
+    ],
     imagePrompt: { type: String, required: true },
   },
   { timestamps: true }
