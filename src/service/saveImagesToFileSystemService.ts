@@ -38,13 +38,38 @@ const saveImagesToFileSystemService = async () => {
   await mongoose.connect(dbUrl);
   const images = await PromptImageModel.find({});
 
-  const imageUrls = images.map((image) => {
-    return image.image;
-  });
+  const imageUrlsWithTimestamps = images.reduce((acc, image) => {
+    // Map each image to its URL and timestamp
+    const imageInfo = image.images.map((img) => ({
+      imageUrl: img.image,
+      createdAt: img.createdAt,
+    }));
+    return [...acc, ...imageInfo];
+  }, []);
 
-  const flattened = imageUrls.flat();
+  const oneMinuteAgo = new Date();
+  oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1);
 
-  await downloadAndSaveImages(flattened);
+  const imagesToDownload = imageUrlsWithTimestamps.filter(
+    (imageInfo) => imageInfo.createdAt < oneMinuteAgo
+  );
+
+  const imageUrls = imagesToDownload.map((imageInfo) => imageInfo.imageUrl);
+
+  await downloadAndSaveImages(imageUrls);
 };
+
+// const saveImagesToFileSystemService = async () => {
+//   await mongoose.connect(dbUrl);
+//   const images = await PromptImageModel.find({});
+
+//   const imageUrls = images.map((image) => {
+//     return image.image;
+//   });
+
+//   const flattened = imageUrls.flat();
+
+//   await downloadAndSaveImages(flattened);
+// };
 
 saveImagesToFileSystemService().catch(console.error);
