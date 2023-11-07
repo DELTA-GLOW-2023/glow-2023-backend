@@ -10,7 +10,7 @@ export const generateImages = async (): Promise<void> => {
   const latestValidPrompt = await PromptModel.findOne({
     approved: true,
     isUsed: false,
-  }).sort({ createdAt: -1 });
+  }).sort({ isPanic: -1, createdAt: -1 });
 
   if (!latestValidPrompt) {
     console.log('Waiting for input... \nSleeping for 2 seconds.');
@@ -20,26 +20,31 @@ export const generateImages = async (): Promise<void> => {
     await latestValidPrompt.save();
     const { prompt } = latestValidPrompt;
     let imageId;
-    for (let i = 0; i < 10; i++) {
-      // Filter the prompt before handing it in to the "getJson" method
-      const { json, endpoint } = await getJson(prompt);
 
-      console.log(
-        `Sending request towards Stable Diffusion API for prompt ${json.prompt}, ${i}`
-      );
-      const response = await axios.post(
-        `${apiUrl}/sdapi/v1/${endpoint}2img`,
-        json
-      );
+    try {
+      for (let i = 0; i < 10; i++) {
+        // Filter the prompt before handing it in to the "getJson" method
+        const { json, endpoint } = await getJson(prompt);
 
-      const imageResult = await uploadImageToBucket(
-        response.data.images[0],
-        prompt,
-        imageId
-      );
+        console.log(
+          `Sending request towards Stable Diffusion API for prompt ${json.prompt}, ${i}`
+        );
+        const response = await axios.post(
+          `${apiUrl}/sdapi/v1/${endpoint}2img`,
+          json
+        );
 
-      imageId = imageResult._id;
-      console.log(`Image ${imageId} saved to database.`);
+        const imageResult = await uploadImageToBucket(
+          response.data.images[0],
+          prompt,
+          imageId
+        );
+
+        imageId = imageResult?._id;
+        console.log(`Image ${imageId} saved to database.`);
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
