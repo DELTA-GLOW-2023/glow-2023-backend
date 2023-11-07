@@ -36,17 +36,25 @@ export const filterPrompt = async (prompt: string) => {
   // This option throws errors and returns a filtered prompt.
   // In case of encountering the first inappropriate/forbidden word/phrase,
   // or indicating an unsupported language, an error is thrown.
-  const response = await axios.post(filterServerUrl, { prompt }).catch(() => {
-    return null;
-  });
 
-  // In case of encountering inappropriate prompt and getting an error from filtering,
-  // return an empty string.
-  // To throw an error instead, delete this "if-statement" and the "catch function above".
-  // If the API request is with 4XX or 5XX codes, it will throw an error automatically.
-  if (!response) return '';
+  try {
+    const response = await axios.post(filterServerUrl, { prompt });
 
-  return response.data.prompt;
+    // In case of encountering inappropriate prompt and getting an error from filtering,
+    // return an empty string.
+    // To throw an error instead, delete this "if-statement" and the "catch function above".
+    // If the API request is with 4XX or 5XX codes, it will throw an error automatically.
+    if (!response) return '';
+
+    return response.data.prompt;
+  } catch (error) {
+    console.log(error);
+    if (error.response.data.message.includes('English')) {
+      return prompt;
+    } else {
+      throw new Error('Prompt is inappropriate.');
+    }
+  }
 };
 
 export const uploadImageToBucket = async (
