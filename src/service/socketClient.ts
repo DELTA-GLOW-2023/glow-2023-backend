@@ -9,12 +9,12 @@ socketClient.on('connect', () => {
 });
 
 export const startInterval = async () => {
-  if (socketClient.connected) {
-    setInterval(async () => {
+  setInterval(async () => {
+    if (socketClient.connected) {
       console.log('Sending a new image to the websocket');
       socketClient.emit('new-image', {
         image: await getLatestDisplayImageDelayed(),
       });
-    }, 1000);
-  }
+    }
+  }, 1000);
 };
