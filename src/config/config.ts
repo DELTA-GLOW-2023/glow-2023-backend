@@ -27,4 +27,4 @@ export const filterServerUrl =
   process.env.FILTER_SERVICE_URL ?? 'http://localhost:8080/filter';
 
 export const websocketUrl =
-  process.env.WEBSOCKET_URL ?? 'http://localhost:9090';
+  process.env.WEBSOCKET_URL ?? 'http://localhost:3000';
