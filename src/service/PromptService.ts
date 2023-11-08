@@ -108,7 +108,7 @@ export const getLatestDisplayImage = async (): Promise<string | undefined> => {
     return undefined;
   }
 
-  return imageUrlToBase64(prompt.images[prompt.images.length - 1]?.image);
+  return prompt.images[prompt.images.length - 1]?.image;
 };
 
 export const getLatestDisplayImageDelayed = async (): Promise<
