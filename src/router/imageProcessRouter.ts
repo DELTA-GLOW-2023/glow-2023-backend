@@ -126,7 +126,7 @@ router.post(
 
     try {
       const newPrompt = {
-        prompt: "knoopxl",
+        prompt: 'knoopxl',
         approved: true, 
         isUsed: true,
         imageData: image,
