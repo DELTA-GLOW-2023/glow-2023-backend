@@ -133,7 +133,7 @@ export const getLatestDisplayImageDelayed = async (): Promise<
     return latest;
   }, null);
 
-  return latestImage.image || prompt?.images[0]?.image;
+  return imageUrlToBase64(latestImage.image || prompt?.images[0]?.image);
 };
 
 export const viewImages = async (): Promise<IImagePrompt[]> => {

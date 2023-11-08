@@ -25,3 +25,6 @@ export const apiKey = process.env.ADMIN_API_KEY ?? '';
 // which throws an error upon finding an inappropriate prompt
 export const filterServerUrl =
   process.env.FILTER_SERVICE_URL ?? 'http://localhost:8080/filter';
+
+export const websocketUrl =
+  process.env.WEBSOCKET_URL ?? 'http://localhost:3000';
