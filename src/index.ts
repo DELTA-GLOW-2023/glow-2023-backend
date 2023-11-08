@@ -7,6 +7,7 @@ import { dbUrl, port } from './config/config';
 import mongoose from 'mongoose';
 import { generateImages } from './service/generateImageService';
 import { PromptRouter } from './router/promptRouter';
+import { startInterval } from './service/socketClient';
 
 const app = express();
 
@@ -27,6 +28,7 @@ const main = async () => {
   console.log('Connected to database');
 
   generateImages();
+  startInterval();
   app.listen(port);
 };
 

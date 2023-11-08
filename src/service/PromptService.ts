@@ -108,7 +108,7 @@ export const getLatestDisplayImage = async (): Promise<string | undefined> => {
     return undefined;
   }
 
-  return prompt.images[prompt.images.length - 1]?.image;
+  return imageUrlToBase64(prompt.images[prompt.images.length - 1]?.image);
 };
 
 export const getLatestDisplayImageDelayed = async (): Promise<
@@ -133,7 +133,7 @@ export const getLatestDisplayImageDelayed = async (): Promise<
     return latest;
   }, null);
 
-  return latestImage.image || prompt?.images[0]?.image;
+  return imageUrlToBase64(latestImage.image || prompt?.images[0]?.image);
 };
 
 export const viewImages = async (): Promise<IImagePrompt[]> => {
