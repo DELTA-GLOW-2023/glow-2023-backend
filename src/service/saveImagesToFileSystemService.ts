@@ -1,10 +1,21 @@
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import childProcess from 'child_process';
 
 import mongoose from 'mongoose';
 import { dbUrl } from '../config/config';
+import * as process from 'process';
 import { PromptImageModel } from '../model/promptImageModel';
+
+const isFFmpegInstalled = () => {
+  try {
+    childProcess.execSync('ffmpeg -version');
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
 
 const downloadImage = async (imageUrl: string, filePath: string) => {
   const response = await axios.get(imageUrl, { responseType: 'stream' });
@@ -36,40 +47,46 @@ const downloadAndSaveImages = async (urls: string[]) => {
 
 const saveImagesToFileSystemService = async () => {
   await mongoose.connect(dbUrl);
+  console.log('Connected to DB');
   const images = await PromptImageModel.find({});
 
-  const imageUrlsWithTimestamps = images.reduce((acc, image) => {
-    // Map each image to its URL and timestamp
-    const imageInfo = image.images.map((img) => ({
-      imageUrl: img.image,
-      createdAt: img.createdAt,
-    }));
-    return [...acc, ...imageInfo];
-  }, []);
+  const imageUrls = images.map((image) => {
+    return image.images.map((meta) => meta.image);
+  });
 
-  const oneMinuteAgo = new Date();
-  oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1);
+  const flattened = imageUrls.flat();
 
-  const imagesToDownload = imageUrlsWithTimestamps.filter(
-    (imageInfo) => imageInfo.createdAt < oneMinuteAgo
-  );
+  if (flattened.length === 0) {
+    throw new Error('No Images have been found.');
+  }
+  await downloadAndSaveImages(flattened);
 
-  const imageUrls = imagesToDownload.map((imageInfo) => imageInfo.imageUrl);
+  if (isFFmpegInstalled()) {
+    const outputVideoPath = './output_video.mp4';
+    const imagesDirectory = './downloaded_images';
 
-  await downloadAndSaveImages(imageUrls);
+    console.log('Converting images to video...');
+    try {
+      childProcess.execSync(
+        `ffmpeg -framerate 30 -i ${imagesDirectory}/image%d.png -c:v libx264 -pix_fmt yuv420p ${outputVideoPath}`
+      );
+      console.log(`Video saved to ${outputVideoPath}`);
+    } catch (error) {
+      console.error('Error converting images to video:', error);
+    }
+  } else {
+    throw new Error(
+      'FFmpeg is not installed. Please install FFmpeg to create the video.'
+    );
+  }
 };
 
-// const saveImagesToFileSystemService = async () => {
-//   await mongoose.connect(dbUrl);
-//   const images = await PromptImageModel.find({});
-
-//   const imageUrls = images.map((image) => {
-//     return image.image;
-//   });
-
-//   const flattened = imageUrls.flat();
-
-//   await downloadAndSaveImages(flattened);
-// };
-
-saveImagesToFileSystemService().catch(console.error);
+saveImagesToFileSystemService()
+  .then(() => {
+    console.log('Success!');
+    process.exit(0);
+  })
+  .catch((reason) => {
+    console.error(reason);
+    process.exit(0);
+  });

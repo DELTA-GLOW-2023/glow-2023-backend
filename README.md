@@ -20,3 +20,11 @@ Then, add the following to the docker-compose file:
 After that you can run the front / backend together with the database and minio instance.
 
 If the workstation is up & running you're able to use the application now.
+
+
+## Create a video
+To create a video at the end of each run use the following command:
+
+```bash
+$ ts-node src/service/saveImagesToFileSystemService.ts
+```
