@@ -175,9 +175,7 @@ export async function getFinalPrompt() {
     return `(${image.imagePrompt}:${(1.5 - i * 0.2).toFixed(1)})`;
   });
 
-  const staticPrompt =
-    '<lora:last-000001:0.8> generic_lightart <lora:glow_1:0.5> glow_eindhoven <lora:eindhoven_city:0.9> Eindhoven_city';
-  return prompt.toString() + staticPrompt;
+  return `<lora:last-000001:0.8> generic_lightart <lora:glow_1:0.5> glow_eindhoven light sculpture ${prompt.toString()}  <lora:eindhoven_city:0.25> nightsky city masterpiece, Eindhoven_city`;
 }
 
 export async function getJson(prompt: string) {

@@ -9,11 +9,16 @@ socketClient.on('connect', () => {
 });
 
 export const startInterval = async () => {
+  const latestImage: string | undefined = undefined;
   setInterval(async () => {
     if (socketClient.connected) {
+      const image = await getLatestDisplayImageDelayed();
+      if (latestImage && latestImage === image) {
+        return;
+      }
       console.log('Sending a new image to the websocket');
       socketClient.emit('new-image', {
-        image: await getLatestDisplayImageDelayed(),
+        image: latestImage,
       });
     }
   }, 1500);
