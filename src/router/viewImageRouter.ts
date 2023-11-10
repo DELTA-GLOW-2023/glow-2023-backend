@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { getLatestDisplayImage, getLatestDisplayImageDelayed, viewImages } from '../service/PromptService';
+import {
+  getLatestDisplayImage,
+  getLatestDisplayImageDelayed,
+  imageUrlToBase64,
+  viewImages,
+} from '../service/PromptService';
 import { apiKeyMiddleware } from '../middleware/apiKeyMiddleware';
 
 const viewImageRouter = Router();
@@ -17,7 +22,7 @@ viewImageRouter.get('/', apiKeyMiddleware, async (req, res) => {
 viewImageRouter.get('/display', async (req, res) => {
   try {
     const image = await getLatestDisplayImage();
-    return res.status(200).json(image);
+    return res.status(200).json(imageUrlToBase64(image));
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal server error' });
