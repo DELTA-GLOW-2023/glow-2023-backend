@@ -14,6 +14,7 @@ export const startInterval = async () => {
     if (socketClient.connected) {
       const image = await getLatestDisplayImageDelayed();
       if (latestImage && latestImage === image) {
+        console.log('No new image to send');
         return;
       }
       latestImage = image;
