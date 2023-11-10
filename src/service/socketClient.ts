@@ -13,7 +13,7 @@ export const startInterval = async () => {
   setInterval(async () => {
     if (socketClient.connected) {
       const image = await getLatestDisplayImageDelayed();
-      if (latestImage && latestImage === image) {
+      if (!latestImage && latestImage === image) {
         return;
       }
       console.log('Sending a new image to the websocket');
