@@ -16,5 +16,5 @@ export const startInterval = async () => {
         image: await getLatestDisplayImageDelayed(),
       });
     }
-  }, 1000);
+  }, 1500);
 };
