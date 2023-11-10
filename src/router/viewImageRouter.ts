@@ -22,7 +22,7 @@ viewImageRouter.get('/', apiKeyMiddleware, async (req, res) => {
 viewImageRouter.get('/display', async (req, res) => {
   try {
     const image = await getLatestDisplayImage();
-    return res.status(200).json(imageUrlToBase64(image));
+    return res.status(200).json(await imageUrlToBase64(image));
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal server error' });
