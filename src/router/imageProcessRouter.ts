@@ -6,7 +6,7 @@
 import { Request, Response, Router } from 'express';
 import { check, validationResult } from 'express-validator';
 import { PromptModel } from '../model/promptModel';
-import {filterPrompt, uploadImageToBucket} from '../service/PromptService';
+import { uploadImageToBucket } from '../service/PromptService';
 
 const router = Router();
 
@@ -36,11 +36,11 @@ router.post(
       switch (method) {
         case 'text': {
           try {
-            const filteredPrompt = await filterPrompt(prompt);
+            // const filteredPrompt = await filterPrompt(prompt);
+            const filteredPrompt = prompt;
             // If the returned prompt is empty, it means that it was inappropriate.
             // Thus, ignore the prompt.
-            if (filteredPrompt.length === 0)
-              break;
+            if (filteredPrompt.length === 0) break;
 
             console.log('The prompt passed successfully');
             const newPrompt = {
@@ -71,11 +71,11 @@ router.post(
         }
         default: {
           try {
-            const filteredPrompt = await filterPrompt(prompt);
+            // const filteredPrompt = await filterPrompt(prompt);
+            const filteredPrompt = prompt;
             // If the returned prompt is empty, it means that it was inappropriate.
             // Thus, ignore the prompt.
-            if (filteredPrompt.length === 0)
-              break;
+            if (filteredPrompt.length === 0) break;
 
             const newPrompt = {
               prompt: filteredPrompt,
@@ -103,7 +103,7 @@ router.post(
   }
 );
 
-/** 
+/**
  * Route handler for processing an image and creating a new prompt model.
  * @route POST /image-upload-and-create-prompt
  * @param {Request} req - The request object containing the imageBase64 and prompt parameters.
@@ -114,7 +114,10 @@ router.post(
 router.post(
   '/upload',
   [
-    check('image').isString().notEmpty().withMessage('Image base64 data is required.'),
+    check('image')
+      .isString()
+      .notEmpty()
+      .withMessage('Image base64 data is required.'),
   ],
   async (req: Request, res: Response) => {
     const errors = validationResult(req);
@@ -127,7 +130,7 @@ router.post(
     try {
       const newPrompt = {
         prompt: 'knoopxl',
-        approved: true, 
+        approved: true,
         isUsed: true,
         imageData: image,
       };
@@ -135,16 +138,17 @@ router.post(
       const promptModel = new PromptModel(newPrompt);
       await promptModel.save();
 
-      await uploadImageToBucket(
-        image,
-        promptModel.prompt,
-        null,
-      );
+      await uploadImageToBucket(image, promptModel.prompt, null);
 
-      res.status(201).json({ message: 'Prompt and image created successfully' });
+      res
+        .status(201)
+        .json({ message: 'Prompt and image created successfully' });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ Message: 'An error occurred while processing the image and creating a prompt.' });
+      res.status(500).json({
+        Message:
+          'An error occurred while processing the image and creating a prompt.',
+      });
     }
   }
 );
