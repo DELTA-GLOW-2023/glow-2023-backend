@@ -176,7 +176,7 @@ export async function getFinalPrompt() {
   });
 
   const staticPrompt =
-    ', light art, led lights, beautiful, highly detailed, high resolution, 4k, ultra hd, crystal clear, 8K UHD,  highly detailed face,(freckles:0.5),<lora:Neno:0.25> Neon Light';
+    '<lora:last-000001:0.8> generic_lightart <lora:glow_1:0.5> glow_eindhoven <lora:eindhoven_city:0.9> Eindhoven_city';
   return prompt.toString() + staticPrompt;
 }
 
@@ -195,7 +195,7 @@ export async function getJson(prompt: string) {
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
       sampler: 'Euler a',
       sampler_name: 'Euler a',
-      steps: 10,
+      steps: 15,
       denoising_strength: denoise,
       cfg_scale: 4,
       width: 432,
@@ -208,7 +208,7 @@ export async function getJson(prompt: string) {
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
       sampler: 'Euler a',
       sampler_name: 'Euler a',
-      steps: 10,
+      steps: 15,
       denoising_strength: denoise,
       cfg_scale: 4,
       width: 432,
