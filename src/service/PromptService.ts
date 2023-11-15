@@ -115,7 +115,7 @@ export const getLatestDisplayImageDelayed = async (): Promise<
   string | undefined
 > => {
   const oneMinuteAgo = new Date();
-  oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1);
+  oneMinuteAgo.setSeconds(oneMinuteAgo.getSeconds() - 17);
 
   const prompt = await PromptImageModel.findOne({
     createdAt: { $lt: oneMinuteAgo },
