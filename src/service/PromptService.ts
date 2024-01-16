@@ -176,13 +176,13 @@ export async function getFinalPrompt() {
   });
 
   const staticPrompt =
-    '<lora:lmc_lora_xl:1.0>';
+    ' <best quality:1.4> 8k 4k fullframe';
   return prompt.toString() + staticPrompt;
 }
 
 export async function getJson(prompt: string) {
   const image = await getLatestDisplayImage();
-  const denoise = 1; // 0.6
+  const denoise = 0.85;
   let json;
   let endpoint;
   if (image) {
@@ -193,12 +193,15 @@ export async function getJson(prompt: string) {
       init_images: [finalImage],
       prompt: finalPrompt,
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'LCM',
-      sampler_name: 'LCM',
-      steps: 10,
+      sampler: 'DPM++ 2M', 
+      sampler_name: 'DPM++ 2M',
+      latent_sampler: 'karras',
+      steps: 20,
       denoising_strength: denoise,
-      cfg_scale: 0,
-      tiling: true,
+      // initial_noise_multiplier: 0,
+      // hdr_center: true,
+      cfg_scale: 2,
+      tiling: false,
       width: 1348,
       height: 768, 
     };
@@ -207,12 +210,15 @@ export async function getJson(prompt: string) {
     json = {
       prompt: prompt,
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'LCM',
-      sampler_name: 'LCM',
-      steps: 10,
+      sampler: 'DPM++ 2M',
+      sampler_name: 'DPM++ 2M',
+      latent_sampler: 'karras',
+      steps: 20,
       denoising_strength: denoise,
-      cfg_scale: 0,
-      tiling: true,
+      // initial_noise_multiplier: 0,
+      // hdr_center: true,
+      cfg_scale: 2,
+      tiling: false,
       width: 1348,
       height: 768,
     };
