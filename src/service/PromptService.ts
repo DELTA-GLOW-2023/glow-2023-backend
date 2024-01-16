@@ -176,13 +176,13 @@ export async function getFinalPrompt() {
   });
 
   const staticPrompt =
-    '<lora:last-000001:0.8> generic_lightart <lora:glow_1:0.5> glow_eindhoven <lora:eindhoven_city:0.9> Eindhoven_city';
+    '<lora:lmc_lora_xl:1.0>';
   return prompt.toString() + staticPrompt;
 }
 
 export async function getJson(prompt: string) {
   const image = await getLatestDisplayImage();
-  const denoise = 0.6;
+  const denoise = 1; // 0.6
   let json;
   let endpoint;
   if (image) {
@@ -193,26 +193,28 @@ export async function getJson(prompt: string) {
       init_images: [finalImage],
       prompt: finalPrompt,
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'Euler a',
-      sampler_name: 'Euler a',
-      steps: 15,
+      sampler: 'LCM',
+      sampler_name: 'LCM',
+      steps: 10,
       denoising_strength: denoise,
-      cfg_scale: 4,
-      width: 432,
-      height: 1008,
+      cfg_scale: 0,
+      tiling: true,
+      width: 1348,
+      height: 768, 
     };
     endpoint = 'img';
   } else {
     json = {
       prompt: prompt,
       negative_prompt: NegativePrompts.negative_prompts.join(', '),
-      sampler: 'Euler a',
-      sampler_name: 'Euler a',
-      steps: 15,
+      sampler: 'LCM',
+      sampler_name: 'LCM',
+      steps: 10,
       denoising_strength: denoise,
-      cfg_scale: 4,
-      width: 432,
-      height: 1008,
+      cfg_scale: 0,
+      tiling: true,
+      width: 1348,
+      height: 768,
     };
     endpoint = 'txt';
   }
