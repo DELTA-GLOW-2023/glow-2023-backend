@@ -179,6 +179,7 @@ export async function getFinalPrompt() {
 }
 
 export async function getJson(prompt: string) {
+  // w 575 h 1008
   const image = await getLatestDisplayImage();
   const denoise = 0.6;
   let json;
@@ -196,7 +197,7 @@ export async function getJson(prompt: string) {
       steps: 15,
       denoising_strength: denoise,
       cfg_scale: 4,
-      width: 432,
+      width: 575, 
       height: 1008,
     };
     endpoint = 'img';
@@ -209,7 +210,7 @@ export async function getJson(prompt: string) {
       steps: 15,
       denoising_strength: denoise,
       cfg_scale: 4,
-      width: 432,
+      width: 575, 
       height: 1008,
     };
     endpoint = 'txt';
