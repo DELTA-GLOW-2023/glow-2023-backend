@@ -196,8 +196,8 @@ export async function getJson(prompt: string) {
       steps: 15,
       denoising_strength: denoise,
       cfg_scale: 4,
-      width: 1008,
-      height: 432,
+      width: 432,
+      height: 1008,
     };
     endpoint = 'img';
   } else {
@@ -209,8 +209,8 @@ export async function getJson(prompt: string) {
       steps: 15,
       denoising_strength: denoise,
       cfg_scale: 4,
-      width: 1008,
-      height: 432,
+      width: 432,
+      height: 1008,
     };
     endpoint = 'txt';
   }
